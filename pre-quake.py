@@ -46,13 +46,12 @@ cmap = plt.get_cmap('Reds')
 norm = plt.Normalize(vmin=dfjapan[search_keyword].min(), vmax=dfjapan[search_keyword].max())
 fcol = lambda x: '#' + bytes(cmap(norm(x), bytes=True)[:3]).hex()
 
-#ax, fig = plt.subplots(figsize=(10,10))
-#plt.colorbar(plt.cm.ScalarMappable(norm, cmap))
+fig, ax = plt.subplots(1,1, figsize=(10,10))
+plt.colorbar(plt.cm.ScalarMappable(norm, cmap))
+plt.imshow(picture(dfjapan[search_keyword].apply(fcol)))
+st.write("Googleにおける検索キーワードの都道府県毎の注目度")
+st.pyplot(fig)
 
-#plt.imshow(picture(dfjapan[search_keyword].apply(fcol)))
-#st.pyplot(fig)
-
-st.write('【検索した単語】{}'.format(search_keyword))
 #検索順位取得処理
 #Google検索の実施
 search_url = 'https://www.google.co.jp/search?hl=ja&num=10&q=' + search_keyword
