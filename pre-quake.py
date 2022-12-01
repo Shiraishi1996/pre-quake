@@ -36,21 +36,9 @@ pytrend.build_payload(kw_list=kw_list, timeframe= str(dt_week)+" "+str(dt_today)
 # 小区域別のインタレストの取得
 st.dataframe(pytrend.interest_over_time())
 
-#st.dataframe(pytrend.interest_by_region(resolution='COUNTRY',
-#                            inc_geo_code=True).sort_values('geoCode'))
-
-dfjapan = pytrend.interest_by_region(resolution="JP", inc_low_vol=True, inc_geo_code=True)
-dfjapan["geoCode"] = dfjapan["geoCode"].str.replace("JP-","").astype(int)
-
-cmap = plt.get_cmap('Reds')
-norm = plt.Normalize(vmin=dfjapan[search_keyword].min(), vmax=dfjapan[search_keyword].max())
-fcol = lambda x: '#' + bytes(cmap(norm(x), bytes=True)[:3]).hex()
-
-fig, ax = plt.subplots(1,1, figsize=(10,10))
-plt.colorbar(plt.cm.ScalarMappable(norm, cmap))
-plt.imshow(picture(dfjapan[search_keyword].apply(fcol)))
-st.write("Googleにおける検索キーワードの都道府県毎の注目度")
-st.pyplot(fig)
+st.write("都道府県ごとの検索結果を取得")
+st.dataframe(pytrend.interest_by_region(resolution='COUNTRY',
+                            inc_geo_code=True).sort_values('geoCode'))
 
 #検索順位取得処理
 #Google検索の実施
