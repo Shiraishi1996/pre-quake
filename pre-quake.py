@@ -51,7 +51,7 @@ plt.colorbar(plt.cm.ScalarMappable(norm, cmap))
 
 st.write("Googleにおける検索キーワードの都道府県毎の注目度")
 #plt.imshow(picture(dfjapan[search_keyword].apply(fcol)))
-st.imshow(picture(dfjapan[search_keyword].apply(fcol)))
+plt.imshow(picture(dfjapan[search_keyword].apply(fcol)))
 st.pyplot(fig)
 
 st.write('【検索した単語】{}'.format(search_keyword))
