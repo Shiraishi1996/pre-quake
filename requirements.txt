@@ -1,4 +1,4 @@
-alabaster==0.7.12
+
 alembic==1.4.1
 algopy==0.5.7
 altair==4.2.0
@@ -330,9 +330,6 @@ wasabi==0.10.1
 watchdog==2.1.9
 wcwidth==0.2.5
 webencodings==0.5.1
-websocket-client==1.2.1
-websockets==10.4
-Werkzeug==2.0.1
 wget==3.2
 whisper==1.1.10
 widgetsnbextension==3.5.1
