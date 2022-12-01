@@ -46,11 +46,9 @@ cmap = plt.get_cmap('Reds')
 norm = plt.Normalize(vmin=dfjapan[search_keyword].min(), vmax=dfjapan[search_keyword].max())
 fcol = lambda x: '#' + bytes(cmap(norm(x), bytes=True)[:3]).hex()
 
-fig = plt.subplots(1,1, figsize=(10,10))
+fig = plt.subplots(figsize=(10,10))
 plt.colorbar(plt.cm.ScalarMappable(norm, cmap))
 
-st.write("Googleにおける検索キーワードの都道府県毎の注目度")
-#plt.imshow(picture(dfjapan[search_keyword].apply(fcol)))
 plt.imshow(picture(dfjapan[search_keyword].apply(fcol)))
 st.pyplot(fig)
 
