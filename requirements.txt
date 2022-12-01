@@ -7,4 +7,3 @@ snscrape==0.4.3.20220106
 pytrends==4.8.0
 matplotlib==3.4.2
 japanmap==0.0.24
-opencv-python--headless==4.5.2.54
