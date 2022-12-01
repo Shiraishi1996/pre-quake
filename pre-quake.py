@@ -48,7 +48,7 @@ fcol = lambda x: '#' + bytes(cmap(norm(x), bytes=True)[:3]).hex()
 
 fig, ax = plt.subplots(1,1, figsize=(10,10))
 plt.colorbar(plt.cm.ScalarMappable(norm, cmap))
-plt.imshow(picture(dfjapan[search_keyword].apply(fcol)))
+#plt.imshow(picture(dfjapan[search_keyword].apply(fcol)))
 st.write("Googleにおける検索キーワードの都道府県毎の注目度")
 st.pyplot(fig)
 
