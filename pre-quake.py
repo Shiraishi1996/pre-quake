@@ -1007,7 +1007,7 @@ fig1 = ax1.set_ylabel("Depth(km)",fontname = "MS Gothic")
 fig2 = ax2.set_ylabel("Magnitude",fontname = "MS Gothic")
 fig3 = ax3.set_ylabel("Latitude",fontname = "MS Gothic")
 fig4 = ax4.set_ylabel("Longitude",fontname = "MS Gothic")
-fig5 = ax5.set_ylabel("Seismic Indensity",fontname = "MS Gothic")
+fig5 = ax5.set_ylabel("Seismic Inensity",fontname = "MS Gothic")
 
 st.pyplot(fig)
 
