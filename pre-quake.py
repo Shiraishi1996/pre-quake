@@ -1145,7 +1145,7 @@ if col:
     x = np.arange(0,len(chart_data),1)
     x1 = np.arange(0,len(chart_data1),1)
     fig, (axL,axR) = mpl.subplots(1,2)
-    axL.set_xlabel('n（times）',fontname = "MS Gothic")
+    axL.set_xlabel('n(times)',fontname = "MS Gothic")
     axL.set_ylabel('Depth(km)',fontname = "MS Gothic")
     axL.plot(x,chart_data["深さ(km)"].astype(float))
     axL.grid(True)
