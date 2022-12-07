@@ -9,7 +9,6 @@ import warnings
 
 st.title("統計学とAI分析による地震予測")
 search_keyword = st.text_input("検索地域を入力","福島県沖")
-st.image("pre-image.jpg")
 
 a =[
 [41166,'千葉県北東部',35.86,140.5333333,37,5.1,4]	,
@@ -1237,3 +1236,5 @@ if col:
     axR.grid(True)
     st.write("(3)直近の１週間データを基に、地震の深さ（km）とマグニチュードを時系列で表したグラフです。")
     st.pyplot(fig)
+    
+st.image("pre-image.jpg")
