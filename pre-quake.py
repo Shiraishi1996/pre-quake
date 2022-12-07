@@ -978,46 +978,49 @@ def exceltopython(int):
     dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int - 2)
     return dt
 
-df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
-df3 = df2[df2["地域"].str.contains(search_keyword)]
+co = st.checkbox("この地域の地震の統計情報を見る。")
 
-df_new = excel2python(df2["日付"])
-df = df_new.join(df2.iloc[:,1:])
+if co:
+    df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
+    df3 = df2[df2["地域"].str.contains(search_keyword)]
 
-df = df[df["地域"].str.contains(search_keyword)]
+    df_new = excel2python(df2["日付"])
+    df = df_new.join(df2.iloc[:,1:])
 
-st.dataframe(df)
+    df = df[df["地域"].str.contains(search_keyword)]
 
-df_len = len(df[df["地域"].str.contains(search_keyword)])
+    st.dataframe(df)
 
-#グラフを表示する領域を，figオブジェクトとして作成。
-fig = mpl.figure(figsize = (10,6), facecolor='lightblue')
+    df_len = len(df[df["地域"].str.contains(search_keyword)])
 
-#グラフを描画するsubplot領域を作成。
-ax1 = fig.add_subplot(5, 1, 1)
-ax2 = fig.add_subplot(5, 1, 2)
-ax3 = fig.add_subplot(5, 1, 3)
-ax4 = fig.add_subplot(5, 1, 4)
-ax5 = fig.add_subplot(5, 1, 5)
+    #グラフを表示する領域を，figオブジェクトとして作成。
+    fig = mpl.figure(figsize = (10,6), facecolor='lightblue')
+
+    #グラフを描画するsubplot領域を作成。
+    ax1 = fig.add_subplot(5, 1, 1)
+    ax2 = fig.add_subplot(5, 1, 2)
+    ax3 = fig.add_subplot(5, 1, 3)
+    ax4 = fig.add_subplot(5, 1, 4)
+    ax5 = fig.add_subplot(5, 1, 5)
 
 
-ax1.plot(np.arange(0,df_len),df.iloc[:]["深さ(km)"])
-ax2.plot(np.arange(0,df_len),df.iloc[:]["マグニチュード"])
-ax3.plot(np.arange(0,df_len),df.iloc[:]["緯度"])
-ax4.plot(np.arange(0,df_len),df.iloc[:]["経度"])
-ax5.plot(np.arange(0,df_len),df.iloc[:]["最大震度"])
+    ax1.plot(np.arange(0,df_len),df.iloc[:]["深さ(km)"])
+    ax2.plot(np.arange(0,df_len),df.iloc[:]["マグニチュード"])
+    ax3.plot(np.arange(0,df_len),df.iloc[:]["緯度"])
+    ax4.plot(np.arange(0,df_len),df.iloc[:]["経度"])
+    ax5.plot(np.arange(0,df_len),df.iloc[:]["最大震度"])
 
-st.dataframe(df.iloc[0:df_len].groupby("地域").describe())
-st.text("統計値は、2012年9月14日から2022年11月30日までに発生したM5.0以上の有感地震データを基に集計。")
-st.text("countは、個数。meanは、平均値。stdは、標準偏差。*%は、下から*%の値。max,minは最大値・最小値。")
-st.text("集計データは気象庁の震度データベースを基にしております。")
-fig1 = ax1.set_ylabel("Depth(km)",fontname = "MS Gothic")
-fig2 = ax2.set_ylabel("Magnitude",fontname = "MS Gothic")
-fig3 = ax3.set_ylabel("Latitude",fontname = "MS Gothic")
-fig4 = ax4.set_ylabel("Longitude",fontname = "MS Gothic")
-fig5 = ax5.set_ylabel("Seismic Intensity",fontname = "MS Gothic")
+    st.dataframe(df.iloc[0:df_len].groupby("地域").describe())
+    st.text("統計値は、2012年9月14日から2022年11月30日までに発生したM5.0以上の有感地震データを基に集計。")
+    st.text("countは、個数。meanは、平均値。stdは、標準偏差。*%は、下から*%の値。max,minは最大値・最小値。")
+    st.text("集計データは気象庁の震度データベースを基にしております。")
+    fig1 = ax1.set_ylabel("Depth(km)",fontname = "MS Gothic")
+    fig2 = ax2.set_ylabel("Magnitude",fontname = "MS Gothic")
+    fig3 = ax3.set_ylabel("Latitude",fontname = "MS Gothic")
+    fig4 = ax4.set_ylabel("Longitude",fontname = "MS Gothic")
+    fig5 = ax5.set_ylabel("Seismic Intensity",fontname = "MS Gothic")
 
-st.pyplot(fig)
+    st.pyplot(fig)
 
 colon = st.checkbox("この地域の地震の予測情報を見る。")
 if colon:
@@ -1088,7 +1091,7 @@ if colon:
 
     st.dataframe(list_making())
 
-col = st.checkbox("この地域の近況をより詳しく知る")
+col = st.checkbox("この地域の近況をより詳しく知る。")
 
 import snscrape.modules.twitter as sntwitter
 import itertools
