@@ -7,6 +7,7 @@ import numpy as np
 import statsmodels.api as sm
 import warnings
 
+st.image("pre-image.jpg",height=10%, wwidth = 10%)
 st.title("統計学とAI分析による地震予測")
 st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
 search_keyword = st.text_input("検索地域を入力","福島県沖")
@@ -1247,4 +1248,3 @@ if col:
                             center=dict(lat=chart_data1["緯度2"].mean(), lon=chart_data1["経度2"].mean()), zoom=3,
                             mapbox_style="stamen-terrain")
     st.plotly_chart(fig)
-st.image("pre-image.jpg")
