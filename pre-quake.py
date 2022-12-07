@@ -7,7 +7,7 @@ import numpy as np
 import statsmodels.api as sm
 import warnings
 
-st.image("pre-image.jpg", width = 10)
+st.image("pre-image.jpg", width = 100)
 st.title("統計学とAI分析による地震予測")
 st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
 search_keyword = st.text_input("検索地域を入力","福島県沖")
