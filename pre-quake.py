@@ -8,6 +8,7 @@ import statsmodels.api as sm
 import warnings
 
 st.title("統計学とAI分析による地震予測")
+st.markdown("<span style=“background-color:#121922”>",unsafe_allow_html=True)
 search_keyword = st.text_input("検索地域を入力","福島県沖")
 
 a =[
