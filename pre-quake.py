@@ -1071,7 +1071,11 @@ if colon:
 
     st.title("地震予測AI分析")
     st.write("以下に記載しているのが、現在発令中の地震予測です。")
-    if max(list_making()["seismic intensity"].round(0))==7:
+    if max(list_making()["seismic intensity"].round(0))>=9:
+        st.write("震度9以上の予測が出ています。目安として、現時点では考えられない、巨大な地震が発生する可能性があります。最大限注意して、行動するようにしてください。")
+    elif max(list_making()["seismic intensity"].round(0))==8:
+        st.write("震度8の予測が出ています。目安として、現時点では考えられない、巨大な地震が発生する可能性があります。最大限注意して、行動するようにしてください。")
+    elif max(list_making()["seismic intensity"].round(0))==7:
         st.write("震度7の予測が出ています。最大限注意して、行動するようにしてください。")
     elif max(list_making()["seismic intensity"].round(0))==6:
         st.write("震度6弱ー6強の予測が出ています。注意して、行動するようにしてください。")
