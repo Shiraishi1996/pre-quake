@@ -979,11 +979,10 @@ def exceltopython(int):
     return dt
 
 co = st.checkbox("この地域の地震の統計情報を見る。")
+df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
+df3 = df2[df2["地域"].str.contains(search_keyword)]
 
 if co:
-    df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
-    df3 = df2[df2["地域"].str.contains(search_keyword)]
-
     df_new = excel2python(df2["日付"])
     df = df_new.join(df2.iloc[:,1:])
 
