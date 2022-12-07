@@ -9,6 +9,7 @@ import warnings
 
 st.title("統計学とAI分析による地震予測")
 search_keyword = st.text_input("検索地域を入力","福島県沖")
+st.image("pre-image.jpg")
 
 a =[
 [41166,'千葉県北東部',35.86,140.5333333,37,5.1,4]	,
@@ -1022,6 +1023,7 @@ if co:
     st.pyplot(fig)
 
 colon = st.checkbox("この地域の地震の予測情報を見る。")
+
 if colon:
     import warnings
     warnings.filterwarnings('ignore') # 計算警告を非表示
