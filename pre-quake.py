@@ -4,8 +4,10 @@ import datetime as dt
 import pandas as pd
 import matplotlib.pyplot as mpl
 import numpy as np
+import statsmodels.api as sm
+import warnings
 
-st.title("地震統計")
+st.title("統計学とAI分析による地震予測")
 search_keyword = st.text_input("検索地域を入力","福島県沖")
 
 a =[
@@ -972,12 +974,18 @@ def excel2python(excel_date):
         excel_date2.append(dt)
     return pd.DataFrame({"日付":excel_date2})
 
-df = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
+def exceltopython(int):
+    dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int - 2)
+    return dt
 
-df_new = excel2python(df["日付"])
-df = df_new.join(df.iloc[:,1:])
+df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
+df3 = df2[df2["地域"].str.contains(search_keyword)]
+
+df_new = excel2python(df2["日付"])
+df = df_new.join(df2.iloc[:,1:])
 
 df = df[df["地域"].str.contains(search_keyword)]
+
 st.dataframe(df)
 
 df_len = len(df[df["地域"].str.contains(search_keyword)])
@@ -1003,13 +1011,78 @@ st.dataframe(df.iloc[0:df_len].groupby("地域").describe())
 st.text("統計値は、2012年9月14日から2022年11月30日までに発生したM5.0以上の有感地震データを基に集計。")
 st.text("countは、個数。meanは、平均値。stdは、標準偏差。*%は、下から*%の値。max,minは最大値・最小値。")
 st.text("集計データは気象庁の震度データベースを基にしております。")
-fig1 = ax1.set_ylabel("Depth(km)",fontname = "MS Gothic")
-fig2 = ax2.set_ylabel("Magnitude",fontname = "MS Gothic")
-fig3 = ax3.set_ylabel("Latitude",fontname = "MS Gothic")
-fig4 = ax4.set_ylabel("Longitude",fontname = "MS Gothic")
-fig5 = ax5.set_ylabel("Seismic Inensity",fontname = "MS Gothic")
+fig1 = ax1.set_ylabel("深さ(km)",fontname = "MS Gothic")
+fig2 = ax2.set_ylabel("マグニチュード",fontname = "MS Gothic")
+fig3 = ax3.set_ylabel("緯度",fontname = "MS Gothic")
+fig4 = ax4.set_ylabel("経度",fontname = "MS Gothic")
+fig5 = ax5.set_ylabel("最大震度",fontname = "MS Gothic")
 
 st.pyplot(fig)
+
+colon = st.checkbox("この地域の地震の予測情報を見る。")
+if colon:
+    import warnings
+    warnings.filterwarnings('ignore') # 計算警告を非表示
+
+    passengers_diff = df3["日付"] - df3['日付'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
+    passengers_diff = passengers_diff.dropna() # 1個できるNaNデータは捨てる
+
+    train = passengers_diff[:round(len(passengers_diff)*0.7)]
+    test = passengers_diff[round(len(passengers_diff)*0.7):]
+
+    # 自動ARMAパラメータ推定関数
+    res_selection = sm.tsa.SARIMAX(df3["日付"], order=(1,1,1),seasonal_order=(1,1,0,12))
+    result = res_selection.fit()
+    result.summary()
+
+    bestPred = result.predict(len(passengers_diff),len(passengers_diff)+15)
+
+    ### m
+    print(excel2python(bestPred.round().astype(int)))
+
+    passengers_diff2 = df3["最大震度"] - df3['最大震度'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
+    passengers_diff2 = passengers_diff.dropna() # 1個できるNaNデータは捨てる
+
+    train2 = passengers_diff2[:round(len(passengers_diff2)*0.7)]
+    test2 = passengers_diff2[round(len(passengers_diff2)*0.7):]
+
+    # 自動ARMAパラメータ推定関数
+    res_selection2 = sm.tsa.SARIMAX(df3["最大震度"], order=(1,1,1),seasonal_order=(1,1,0,12))
+    result2 = res_selection2.fit()
+    result2.summary()
+
+    bestPred2 = result2.predict(len(passengers_diff2),len(passengers_diff2)+15)
+    print(bestPred2)
+    ### m
+
+    def sum_passengers(n):
+        days_count = 0
+        for i in range(n):
+            days_count += (bestPred.iloc[i])
+        return days_count
+
+    def list_making():
+        f = pd.to_datetime("1899/12/30")
+        print(f)
+        point = pd.to_timedelta(bestPred.round().astype(int),unit="D",errors="coerce")+f
+        point2 = bestPred2
+        point = sorted(point)
+        return pd.DataFrame({"time":point,"seismic intensity":point2.round().astype(int)})
+
+    st.title("地震予測AI分析")
+    st.write("以下に記載しているのが、現在発令中の地震予測です。")
+    if max(list_making()["seismic intensity"].round(0))==7:
+        st.write("震度7の予測が出ています。最大限注意して、行動するようにしてください。")
+    elif max(list_making()["seismic intensity"].round(0))==6:
+        st.write("震度6弱ー6強の予測が出ています。注意して、行動するようにしてください。")
+    elif max(list_making()["seismic intensity"].round(0))==5:
+        st.write("震度5弱ー5強の予測が出ています。注意して、行動するようにしてください。")
+    elif max(list_making()["seismic intensity"].round(0))==4:
+        st.write("震度4の予測が出ています。落ち着いて、行動するようにしてください。")
+    else:
+        st.write("現在地震の予測は出ていません。比較的安全だとは思われますが、注意して行動しましょう。")
+
+    st.dataframe(list_making())
 
 col = st.checkbox("この地域の近況をより詳しく知る")
 
@@ -1145,13 +1218,13 @@ if col:
     x = np.arange(0,len(chart_data),1)
     x1 = np.arange(0,len(chart_data1),1)
     fig, (axL,axR) = mpl.subplots(1,2)
-    axL.set_xlabel('n(times)',fontname = "MS Gothic")
-    axL.set_ylabel('Depth(km)',fontname = "MS Gothic")
+    axL.set_xlabel('n（回目）',fontname = "MS Gothic")
+    axL.set_ylabel('深さ(km)',fontname = "MS Gothic")
     axL.plot(x,chart_data["深さ(km)"].astype(float))
     axL.grid(True)
 
-    axR.set_xlabel('n(times)',fontname = "MS Gothic")
-    axR.set_ylabel('Magnitude(M)',fontname = "MS Gothic") 
+    axR.set_xlabel('n(回目)',fontname = "MS Gothic")
+    axR.set_ylabel('マグニチュード(M)',fontname = "MS Gothic") 
     axR.plot(x1,chart_data1["M"].astype(float))
     axR.grid(True)
     st.write("(3)直近の１週間データを基に、地震の深さ（km）とマグニチュードを時系列で表したグラフです。")
