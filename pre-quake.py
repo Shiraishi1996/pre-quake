@@ -966,6 +966,13 @@ a =[
 [44860,'釧路沖',41.99,144.8833333,11,5.2,2]	,
 [44861,'釧路沖',42.00166667,144.8666667,13,5.1,1]]
 
+co = st.checkbox("この地域の過去の統計データを見る。")
+colon = st.checkbox("この地域の予測の情報を見る。")
+col = st.checkbox("この地域の近況をより詳しく知る。")
+
+df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
+df3 = df2[df2["地域"].str.contains(search_keyword)]
+
 def excel2python(excel_date):
     excel_date = list(excel_date)
     excel_date2 = []
@@ -978,11 +985,8 @@ def exceltopython(int):
     dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int - 2)
     return dt
 
-co = st.checkbox("この地域の地震の統計情報を見る。")
-df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
-df3 = df2[df2["地域"].str.contains(search_keyword)]
-
 if co:
+
     df_new = excel2python(df2["日付"])
     df = df_new.join(df2.iloc[:,1:])
 
@@ -992,36 +996,19 @@ if co:
 
     df_len = len(df[df["地域"].str.contains(search_keyword)])
 
-    #グラフを表示する領域を，figオブジェクトとして作成。
-    fig = mpl.figure(figsize = (10,6), facecolor='lightblue')
+    import plotly.express as px
 
-    #グラフを描画するsubplot領域を作成。
-    ax1 = fig.add_subplot(5, 1, 1)
-    ax2 = fig.add_subplot(5, 1, 2)
-    ax3 = fig.add_subplot(5, 1, 3)
-    ax4 = fig.add_subplot(5, 1, 4)
-    ax5 = fig.add_subplot(5, 1, 5)
+    fig = px.line(df, x="日付", y="深さ(km)", title='Depth (km)')
+    fig2 = px.line(df, x="日付", y="マグニチュード", title='Magnitude')
+    fig3 = px.line(df, x="日付", y="緯度", title='lat')
+    fig4 = px.line(df, x="日付", y="経度", title='lon')
+    fig5 = px.line(df, x="日付", y="最大震度", title='Seismic intensity')
 
-
-    ax1.plot(np.arange(0,df_len),df.iloc[:]["深さ(km)"])
-    ax2.plot(np.arange(0,df_len),df.iloc[:]["マグニチュード"])
-    ax3.plot(np.arange(0,df_len),df.iloc[:]["緯度"])
-    ax4.plot(np.arange(0,df_len),df.iloc[:]["経度"])
-    ax5.plot(np.arange(0,df_len),df.iloc[:]["最大震度"])
-
-    st.dataframe(df.iloc[0:df_len].groupby("地域").describe())
-    st.text("統計値は、2012年9月14日から2022年11月30日までに発生したM5.0以上の有感地震データを基に集計。")
-    st.text("countは、個数。meanは、平均値。stdは、標準偏差。*%は、下から*%の値。max,minは最大値・最小値。")
-    st.text("集計データは気象庁の震度データベースを基にしております。")
-    fig1 = ax1.set_ylabel("Depth(km)",fontname = "MS Gothic")
-    fig2 = ax2.set_ylabel("Magnitude",fontname = "MS Gothic")
-    fig3 = ax3.set_ylabel("Latitude",fontname = "MS Gothic")
-    fig4 = ax4.set_ylabel("Longitude",fontname = "MS Gothic")
-    fig5 = ax5.set_ylabel("Seismic Intensity",fontname = "MS Gothic")
-
-    st.pyplot(fig)
-
-colon = st.checkbox("この地域の地震の予測情報を見る。")
+    st.plotly_chart(fig)
+    st.plotly_chart(fig2)
+    st.plotly_chart(fig3)
+    st.plotly_chart(fig4)
+    st.plotly_chart(fig5)
 
 if colon:
     import warnings
@@ -1038,7 +1025,12 @@ if colon:
     result = res_selection.fit()
     result.summary()
 
-    bestPred = result.predict(len(passengers_diff),len(passengers_diff)+15)
+    date = dt.datetime.today()
+    date2 = dt.timedelta(days = 365) + date
+
+    i = 19
+
+    bestPred = result.predict(len(passengers_diff),len(passengers_diff)+i)
 
     ### m
     print(excel2python(bestPred.round().astype(int)))
@@ -1054,9 +1046,27 @@ if colon:
     result2 = res_selection2.fit()
     result2.summary()
 
-    bestPred2 = result2.predict(len(passengers_diff2),len(passengers_diff2)+15)
+    bestPred2 = result2.predict(len(passengers_diff),len(passengers_diff)+i)
     print(bestPred2)
+
+    # 自動ARMAパラメータ推定関数
+    passengers_diff3 = df3["緯度"] - df3['緯度'].shift()
+    res_selection3 = sm.tsa.SARIMAX(df3["緯度"], order=(1,1,1),seasonal_order=(1,1,0,12))
+    result3 = res_selection3.fit()
+    result3.summary()
+    bestPred3 = result3.predict(len(passengers_diff),len(passengers_diff)+i)
+    print(bestPred3)
+
+    # 自動ARMAパラメータ推定関数
+    passengers_diff4 = df3["経度"] - df3['経度'].shift()
+    res_selection4 = sm.tsa.SARIMAX(df3["経度"], order=(1,1,1),seasonal_order=(1,1,0,12))
+    result4 = res_selection4.fit()
+    result4.summary()
+    bestPred4 = result4.predict(len(passengers_diff),len(passengers_diff)+i)
+    print(bestPred4)
+
     ### m
+    print(excel2python(bestPred.round().astype(int)))
 
     def sum_passengers(n):
         days_count = 0
@@ -1069,16 +1079,15 @@ if colon:
         print(f)
         point = pd.to_timedelta(bestPred.round().astype(int),unit="D",errors="coerce")+f
         point2 = bestPred2
+        point3 = bestPred3
+        point4 = bestPred4
         point = sorted(point)
-        return pd.DataFrame({"time":point,"seismic intensity":point2.round().astype(int)})
+        return pd.DataFrame({"time":point,"seismic intensity":point2.round().astype(int),"lat":point3,"lon":point4})
 
     st.title("地震予測AI分析")
+    st.write("データが少なすぎる場合は、地震の予測結果がエラーを起こすことがあります。1年間の予測結果が閲覧できます。")
     st.write("以下に記載しているのが、現在発令中の地震予測です。")
-    if max(list_making()["seismic intensity"].round(0))>=9:
-        st.write("震度9以上の予測が出ています。目安として、現時点では考えられない、巨大な地震が発生する可能性があります。最大限注意して、行動するようにしてください。")
-    elif max(list_making()["seismic intensity"].round(0))==8:
-        st.write("震度8の予測が出ています。目安として、現時点では考えられない、巨大な地震が発生する可能性があります。最大限注意して、行動するようにしてください。")
-    elif max(list_making()["seismic intensity"].round(0))==7:
+    if max(list_making()["seismic intensity"].round(0))==7:
         st.write("震度7の予測が出ています。最大限注意して、行動するようにしてください。")
     elif max(list_making()["seismic intensity"].round(0))==6:
         st.write("震度6弱ー6強の予測が出ています。注意して、行動するようにしてください。")
@@ -1088,10 +1097,15 @@ if colon:
         st.write("震度4の予測が出ています。落ち着いて、行動するようにしてください。")
     else:
         st.write("現在地震の予測は出ていません。比較的安全だとは思われますが、注意して行動しましょう。")
+    a = list_making()[list_making()["time"]<=date2]
+    a = a[a["time"]>=date]
 
-    st.dataframe(list_making())
-
-col = st.checkbox("この地域の近況をより詳しく知る。")
+    import plotly.express as px
+    fig = px.density_mapbox(a, lat='lat', lon='lon', z='seismic intensity', radius=20,
+                            center=dict(lat=a["lat"].mean(), lon=a["lon"].mean()), zoom=5,
+                            mapbox_style="stamen-terrain")
+    st.plotly_chart(fig)
+    st.dataframe(a)
 
 import snscrape.modules.twitter as sntwitter
 import itertools
@@ -1217,24 +1231,19 @@ if col:
         mime='text/csv',
     )
     df_1 = df_1[df_1["震央地名"].str.contains(search_keyword)].sort_index(ascending=False)
-
-    chart_data = df_1[~pd.to_numeric(df_1["深さ(km)"], errors="coerce").isnull()]
-
+    chart_data1 = df_1[~pd.to_numeric(df_1["深さ(km)"], errors="coerce").isnull()]
     chart_data1 = df_1[~pd.to_numeric(df_1["M"], errors="coerce").isnull()]
+    chart_data1["年月日"] = pd.to_datetime({'year':chart_data1["年"],'month':chart_data1["月"],'day':chart_data1["日"],"hour":chart_data1["時分"].apply(lambda x: dt.datetime.strptime(x,'%H:%M').hour),"minute":chart_data1["時分"].apply(lambda x: dt.datetime.strptime(x,'%H:%M').hour),"second":chart_data1["秒"]})
+    chart_data1["深さ"] = pd.DataFrame({"Depth":chart_data1["深さ(km)"].apply(lambda x: float(x))})
+    chart_data1["M"] = pd.DataFrame({"Magnitude":chart_data1["M"].apply(lambda x: float(x))})
+    chart_data1["緯度2"] = pd.DataFrame({"緯度2":chart_data1["緯度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
+    chart_data1["経度2"] = pd.DataFrame({"経度2":chart_data1["経度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
 
-    x = np.arange(0,len(chart_data),1)
-    x1 = np.arange(0,len(chart_data1),1)
-    fig, (axL,axR) = mpl.subplots(1,2)
-    axL.set_xlabel('n（times）',fontname = "MS Gothic")
-    axL.set_ylabel('Depth(km)',fontname = "MS Gothic")
-    axL.plot(x,chart_data["深さ(km)"].astype(float))
-    axL.grid(True)
-
-    axR.set_xlabel('n(times)',fontname = "MS Gothic")
-    axR.set_ylabel('Magnitude(M)',fontname = "MS Gothic") 
-    axR.plot(x1,chart_data1["M"].astype(float))
-    axR.grid(True)
-    st.write("(3)直近の１週間データを基に、地震の深さ（km）とマグニチュードを時系列で表したグラフです。")
-    st.pyplot(fig)
-    
+    print(df_1)
+    st.write("(3)直近の１週間データを基に、地震の分布を表したマップです。")
+    import plotly.express as px
+    fig = px.density_mapbox(chart_data1, lat='緯度2', lon='経度2', z='M', radius=5,
+                            center=dict(lat=chart_data1["緯度2"].mean(), lon=chart_data1["経度2"].mean()), zoom=3,
+                            mapbox_style="stamen-terrain")
+    st.plotly_chart(fig)
 st.image("pre-image.jpg")
