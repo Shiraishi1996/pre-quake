@@ -1079,19 +1079,20 @@ if colon:
         point = sorted(point)
         return pd.DataFrame({"time":point,"seismic intensity":point2.round().astype(int),"lat":point3,"lon":point4})
 
-    a = list_making()[min(list_making()["time"])>=date]
+    a = list_making()[list_making()["time"]<=date2]
+    a = a[a["time"]>=date]
     
     st.title("地震予測AI分析")
     st.write("データが少なすぎる場合は、地震の予測結果がエラーを起こすことがあります。1年間の予測結果が閲覧できます。")
     st.write("以下に記載しているのが、現在発令中の地震予測です。")
     
-    if max(a["seismic intensity"].round(0))==7:
+    if max(list_making()["seismic intensity"].round(0))==7:
         st.write("震度7の予測が出ています。最大限注意して、行動するようにしてください。")
-    elif max(a["seismic intensity"].round(0))==6:
+    elif max(list_making()["seismic intensity"].round(0))==6:
         st.write("震度6弱ー6強の予測が出ています。注意して、行動するようにしてください。")
-    elif max(a["seismic intensity"].round(0))==5:
+    elif max(list_makin()["seismic intensity"].round(0))==5:
         st.write("震度5弱ー5強の予測が出ています。注意して、行動するようにしてください。")
-    elif max(a["seismic intensity"].round(0))==4:
+    elif max(list_making()["seismic intensity"].round(0))==4:
         st.write("震度4の予測が出ています。落ち着いて、行動するようにしてください。")
     else:
         st.write("現在、大規模地震の予測は出ていません。比較的安全だとは思われますが、注意して行動しましょう。")
