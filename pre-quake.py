@@ -1019,9 +1019,6 @@ if colon:
     passengers_diff = df3["日付"] - df3['日付'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
     passengers_diff = passengers_diff.dropna() # 1個できるNaNデータは捨てる
 
-    train = passengers_diff[:round(len(passengers_diff)*0.7)]
-    test = passengers_diff[round(len(passengers_diff)*0.7):]
-
     # 自動ARMAパラメータ推定関数
     res_selection = sm.tsa.SARIMAX(df3["日付"], order=(1,1,1),seasonal_order=(1,1,0,12))
     result = res_selection.fit()
@@ -1029,26 +1026,22 @@ if colon:
 
     date = dt.datetime.today()
     date2 = dt.timedelta(days = 365) + date
-
-    i = 19
-
-    bestPred = result.predict(len(passengers_diff),len(passengers_diff)+i)
-
-    ### m
-    print(excel2python(bestPred.round().astype(int)))
+ 
+    p = 0 
+    bestPred = result.predict(len(df3["日付"]),len(df3["日付"])+ p)
+    while date2 >= exceltopython(int(max(bestPred))):
+        p += 1
+        bestPred = result.predict(len(df3["日付"]),len(df3["日付"])+ p)
 
     passengers_diff2 = df3["最大震度"] - df3['最大震度'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
     passengers_diff2 = passengers_diff.dropna() # 1個できるNaNデータは捨てる
-
-    train2 = passengers_diff2[:round(len(passengers_diff2)*0.7)]
-    test2 = passengers_diff2[round(len(passengers_diff2)*0.7):]
 
     # 自動ARMAパラメータ推定関数
     res_selection2 = sm.tsa.SARIMAX(df3["最大震度"], order=(1,1,1),seasonal_order=(1,1,0,12))
     result2 = res_selection2.fit()
     result2.summary()
 
-    bestPred2 = result2.predict(len(passengers_diff),len(passengers_diff)+i)
+    bestPred2 = result2.predict(len(df3["日付"]),len(df3["日付"])+p)
     print(bestPred2)
 
     # 自動ARMAパラメータ推定関数
@@ -1056,7 +1049,7 @@ if colon:
     res_selection3 = sm.tsa.SARIMAX(df3["緯度"], order=(1,1,1),seasonal_order=(1,1,0,12))
     result3 = res_selection3.fit()
     result3.summary()
-    bestPred3 = result3.predict(len(passengers_diff),len(passengers_diff)+i)
+    bestPred3 = result3.predict(len(df3["日付"]),len(df3["日付"])+p)
     print(bestPred3)
 
     # 自動ARMAパラメータ推定関数
@@ -1064,7 +1057,7 @@ if colon:
     res_selection4 = sm.tsa.SARIMAX(df3["経度"], order=(1,1,1),seasonal_order=(1,1,0,12))
     result4 = res_selection4.fit()
     result4.summary()
-    bestPred4 = result4.predict(len(passengers_diff),len(passengers_diff)+i)
+    bestPred4 = result4.predict(len(df3["日付"]),len(df3["日付"])+p)
     print(bestPred4)
 
     ### m
@@ -1108,7 +1101,7 @@ if colon:
                             mapbox_style="stamen-terrain")
     st.plotly_chart(fig)
     st.dataframe(a)
-
+    
 import snscrape.modules.twitter as sntwitter
 import itertools
 import requests  # HTTPリクエスト
