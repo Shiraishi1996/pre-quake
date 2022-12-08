@@ -1090,7 +1090,7 @@ if colon:
         st.write("震度7の予測が出ています。最大限注意して、行動するようにしてください。")
     elif max(list_making()["seismic intensity"].round(0))==6:
         st.write("震度6弱ー6強の予測が出ています。注意して、行動するようにしてください。")
-    elif max(list_makin()["seismic intensity"].round(0))==5:
+    elif max(list_making()["seismic intensity"].round(0))==5:
         st.write("震度5弱ー5強の予測が出ています。注意して、行動するようにしてください。")
     elif max(list_making()["seismic intensity"].round(0))==4:
         st.write("震度4の予測が出ています。落ち着いて、行動するようにしてください。")
