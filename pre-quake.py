@@ -4948,8 +4948,8 @@ if colon:
         point = sorted(point)
         return pd.DataFrame({"time":point,"seismic intensity":point2.round().astype(int),"lat":point3,"lon":point4})
 
-    a = list_making()[list_making()["time"]<=date2]
-    a = a[a["time"]>=date]
+    a = list_making()[list_making()["time"]<=date2-1]
+    a = a[a["time"]>=date-1]
     
     st.title("地震予測AI分析")
     st.write("データが少なすぎる場合は、地震の予測結果がエラーを起こすことがあります。1年間の予測結果が閲覧できます。")
