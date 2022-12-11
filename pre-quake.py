@@ -4885,7 +4885,7 @@ if colon:
     import warnings
     warnings.filterwarnings('ignore') # 計算警告を非表示
 
-    dateinput = st.date_input("予測する年月日を入力してください。（該当日よりも前のデータから、該当日より後の１年間を予測します。）",dt.date(datetime.now().year,datetime.now().month,datetime.now().day))
+    dateinput = st.date_input("予測する年月日を入力してください。（該当日よりも前のデータを基に、該当日より後の１年間を予測します。）",dt.date(datetime.now().year,datetime.now().month,datetime.now().day))
 
     year_date = str(dateinput.strftime("%Y")) + '/' + str(dateinput.strftime('%m')) + "/" + str(dateinput.strftime("%d"))
 
