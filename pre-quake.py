@@ -4885,6 +4885,15 @@ if colon:
     import warnings
     warnings.filterwarnings('ignore') # 計算警告を非表示
 
+    dateinput = st.date_input("予測する年月日を入力してください。（該当日よりも前のデータから、該当日より後の１年間を予測します。）",dt.date(datetime.now().year,datetime.now().month,datetime.now().day))
+
+    year_date = str(dateinput.strftime("%Y")) + '/' + str(dateinput.strftime('%m')) + "/" + str(dateinput.strftime("%d"))
+
+    dt2 = datetime.strptime(year_date, '%Y/%m/%d') - datetime(1899, 12, 31)
+    serial = dt2.days + 1
+
+    df3 = df3[df3["日付"] <= serial]
+
     passengers_diff = df3["日付"] - df3['日付'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
     passengers_diff = passengers_diff.dropna() # 1個できるNaNデータは捨てる
 
@@ -4893,7 +4902,7 @@ if colon:
     result = res_selection.fit()
     result.summary()
 
-    date = dt.datetime.today() - dt.timedelta(days = 5)
+    date = datetime(int(str(dateinput.strftime("%Y-%m-%d"))[0:4]),int(str(dateinput.strftime("%Y-%m-%d"))[5:7]),int(str(dateinput.strftime("%Y-%m-%d"))[8:10]))
     date2 = dt.timedelta(days = 365) + date
  
     p = 0 
