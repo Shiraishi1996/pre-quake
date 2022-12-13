@@ -5129,9 +5129,9 @@ if col:
     chart_data1["lat"] = pd.DataFrame({"lat":chart_data1["緯度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
     chart_data1["lon"] = pd.DataFrame({"lon":chart_data1["経度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
 
-    chart_data1 = df_1.query(str(min(lat)) + "<= lat <="+ str(max(lat)))
-    chart_data1 = df_1.query(str(min(lon)) + "<= lon <="+ str(max(lon)))
-    chart_data1 = df_1.query(str(min(m)) + "<= M <="+ str(max(m)))
+    chart_data1 = chart_data1.query(str(min(lat)) + "<= lat <="+ str(max(lat)))
+    chart_data1 = chart_data1.query(str(min(lon)) + "<= lon <="+ str(max(lon)))
+    chart_data1 = chart_data1.query(str(min(m)) + "<= M <="+ str(max(m)))
     
     st.write("(3)直近の１週間データを基に、地震の分布を表したマップです。")
     import plotly.express as px
