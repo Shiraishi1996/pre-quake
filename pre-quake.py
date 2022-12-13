@@ -11,7 +11,7 @@ import warnings
 st.title("AI分析による地震予測")
 st.text("詳細な設定は、サイドバーから行えます。")
 st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
-search_keyword = st.text_input("地域から検索","")
+search_keyword = st.text_input("地域から検索","福島県沖")
 
 st.sidebar.header('詳細な設定')
 lat = st.sidebar.slider('緯度から検索', 25, 40, (25,40))
