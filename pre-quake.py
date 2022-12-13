@@ -17,7 +17,7 @@ st.sidebar.header('詳細な設定')
 lat = st.sidebar.slider('緯度を指定して予測する', 25, 40, (25,40))
 lon = st.sidebar.slider('経度を指定して予測する',120,145,(120,145))
 m = st.sidebar.slider("マグニチュードを指定して予測する",0,9,(5,9))
-shindo = st.sidebar.slider("最大震度を指定して予測する",1,7,(1,7))
+shindo = st.sidebar.slider("最大震度を指定して予測する(地震の近況では設定できません。)",1,7,(1,7))
 
 a =[
 [28142,'父島近海',26.55,142.566666666667,70,6.1,2]	,
