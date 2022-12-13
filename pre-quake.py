@@ -9,7 +9,7 @@ import warnings
 
 st.image("pre-image.jpg", width = 100)
 st.title("地震予測シミュレーション")
-st.text("詳細な設定は、サイドバーから行えます。指定したデータに基づいた時系列地震予測を行います。")
+st.write("詳細な設定は、サイドバーから行えます。指定したデータに基づいた時系列地震予測を行います。")
 st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
 search_keyword = st.text_input("地域を指定して予測する","福島県沖")
 
@@ -4844,9 +4844,9 @@ a =[
 [44860,'釧路沖',41.99,144.8833333,11,5.2,2]	,
 [44861,'釧路沖',42.00166667,144.8666667,13,5.1,1]]
 
-co = st.checkbox("この地域の過去の統計データを見る。")
-colon = st.checkbox("この地域の予測の情報を見る。")
-col = st.checkbox("この地域の近況をより詳しく知る。")
+co = st.checkbox("予測に用いるデータを見たい。(trainデータ)")
+colon = st.checkbox("予測結果を見たい。（testデータ）")
+col = st.checkbox("地震の近況を詳しく知りたい。")
 
 def excel2python(excel_date):
     excel_date = list(excel_date)
