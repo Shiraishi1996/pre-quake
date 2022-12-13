@@ -8,7 +8,7 @@ import statsmodels.api as sm
 import warnings
 
 #st.image("pre-image.jpg", width = 100)
-st.title("AI分析による地震予測")
+st.title("地震予測シミュレーション")
 st.text("詳細な設定は、サイドバーから行えます。指定したデータに基づいた時系列地震予測を行います。")
 st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
 search_keyword = st.text_input("地域を指定して予測する","福島県沖")
