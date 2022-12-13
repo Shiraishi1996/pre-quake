@@ -7,10 +7,17 @@ import numpy as np
 import statsmodels.api as sm
 import warnings
 
-st.image("pre-image.jpg", width = 100)
-st.title("統計学とAI分析による地震予測")
+#st.image("pre-image.jpg", width = 100)
+st.title("AI分析による地震予測")
+st.text("詳細な設定は、サイドバーから行えます。")
 st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
-search_keyword = st.text_input("検索地域を入力","福島県沖")
+search_keyword = st.text_input("地域から検索","")
+
+st.sidebar.header('詳細な設定')
+lat = st.sidebar.slider('緯度から検索', 25, 40, (25,40))
+lon = st.sidebar.slider('経度から検索',120,145,(120,145))
+m = st.sidebar.slider("マグニチュードから検索",5,9,(5,9))
+shindo = st.sidebar.slider("最大震度から検索",1,7,(1,7))
 
 a =[
 [28142,'父島近海',26.55,142.566666666667,70,6.1,2]	,
@@ -4841,9 +4848,6 @@ co = st.checkbox("この地域の過去の統計データを見る。")
 colon = st.checkbox("この地域の予測の情報を見る。")
 col = st.checkbox("この地域の近況をより詳しく知る。")
 
-df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
-df3 = df2[df2["地域"].str.contains(search_keyword)]
-
 def excel2python(excel_date):
     excel_date = list(excel_date)
     excel_date2 = []
@@ -4852,17 +4856,27 @@ def excel2python(excel_date):
         excel_date2.append(dt)
     return pd.DataFrame({"日付":excel_date2})
 
+df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
+df_new = excel2python(df2["日付"])
+df = df_new.join(df2.iloc[:,1:])
+df = df[df["地域"].str.contains(search_keyword)]
+df = df.query(str(min(lat)) + "<= 緯度 <="+ str(max(lat)))
+df = df.query(str(min(lon)) + "<= 経度 <="+ str(max(lon)))
+df = df.query(str(min(m)) + "<= マグニチュード <="+ str(max(m)))
+df = df.query(str(min(shindo)) + "<= 最大震度 <="+ str(max(shindo)))
+
+df3 = df2[df2["地域"].str.contains(search_keyword)]
+df3 = df3.query(str(min(lat)) + "<= 緯度 <="+ str(max(lat)))
+df3 = df3.query(str(min(lon)) + "<= 経度 <="+ str(max(lon)))
+df3 = df3.query(str(min(m)) + "<= マグニチュード <="+ str(max(m)))
+df3 = df3.query(str(min(shindo)) + "<= 最大震度 <="+ str(max(shindo)))
+df2 = df3
+
 def exceltopython(int):
     dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int - 2)
     return dt
 
 if co:
-
-    df_new = excel2python(df2["日付"])
-    df = df_new.join(df2.iloc[:,1:])
-
-    df = df[df["地域"].str.contains(search_keyword)]
-
     st.dataframe(df)
 
     df_len = len(df[df["地域"].str.contains(search_keyword)])
@@ -4920,7 +4934,7 @@ if colon:
     result2.summary()
 
     bestPred2 = result2.predict(len(df3["日付"]),len(df3["日付"])+p)
-    print(bestPred2)
+
 
     # 自動ARMAパラメータ推定関数
     passengers_diff3 = df3["緯度"] - df3['緯度'].shift()
@@ -4928,7 +4942,6 @@ if colon:
     result3 = res_selection3.fit()
     result3.summary()
     bestPred3 = result3.predict(len(df3["日付"]),len(df3["日付"])+p)
-    print(bestPred3)
 
     # 自動ARMAパラメータ推定関数
     passengers_diff4 = df3["経度"] - df3['経度'].shift()
@@ -4936,10 +4949,11 @@ if colon:
     result4 = res_selection4.fit()
     result4.summary()
     bestPred4 = result4.predict(len(df3["日付"]),len(df3["日付"])+p)
-    print(bestPred4)
 
-    ### m
-    print(excel2python(bestPred.round().astype(int)))
+    res_selection5 = sm.tsa.SARIMAX(df3["マグニチュード"], order=(1,1,1),seasonal_order=(1,1,0,12))
+    result5 = res_selection5.fit()
+    result5.summary()
+    bestPred5 = result5.predict(len(df3["日付"]),len(df3["日付"])+p)
 
     def sum_passengers(n):
         days_count = 0
@@ -4949,13 +4963,14 @@ if colon:
 
     def list_making():
         f = pd.to_datetime("1899/12/30")
-        print(f)
+        #print(f)
         point = pd.to_timedelta(bestPred.round().astype(int),unit="D",errors="coerce")+f
         point2 = bestPred2
         point3 = bestPred3
         point4 = bestPred4
+        point5 = bestPred5
         point = sorted(point)
-        return pd.DataFrame({"time":point,"seismic intensity":point2.round().astype(int),"lat":point3,"lon":point4})
+        return pd.DataFrame({"time":point,"seismic intensity":point2.round().astype(int),"lat":point3,"lon":point4,"M":point5.round(1).astype(float)})
 
     a = list_making()[list_making()["time"]<=date2]
     a = a[a["time"]>=date]
@@ -5114,7 +5129,6 @@ if col:
     chart_data1["緯度2"] = pd.DataFrame({"緯度2":chart_data1["緯度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
     chart_data1["経度2"] = pd.DataFrame({"経度2":chart_data1["経度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
 
-    print(df_1)
     st.write("(3)直近の１週間データを基に、地震の分布を表したマップです。")
     import plotly.express as px
     fig = px.density_mapbox(chart_data1, lat='緯度2', lon='経度2', z='M', radius=5,
