@@ -14,9 +14,9 @@ st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
 search_keyword = st.text_input("地域を指定して予測する","福島県沖")
 
 st.sidebar.header('詳細な設定')
-lat = st.sidebar.slider('緯度を指定して予測する', 25, 40, (25,40))
+lat = st.sidebar.slider('緯度を指定して予測する', 25, 50, (25,50))
 lon = st.sidebar.slider('経度を指定して予測する',120,145,(120,145))
-m = st.sidebar.slider("マグニチュードを指定して予測する",0,9,(5,9))
+m = st.sidebar.slider("マグニチュードを指定して予測する",0,9,(0,9))
 shindo = st.sidebar.slider("最大震度を指定して予測する(地震の近況では設定できません。)",1,7,(1,7))
 
 a =[
