@@ -5126,12 +5126,16 @@ if col:
     chart_data1["年月日"] = pd.to_datetime({'year':chart_data1["年"],'month':chart_data1["月"],'day':chart_data1["日"],"hour":chart_data1["時分"].apply(lambda x: dt.datetime.strptime(x,'%H:%M').hour),"minute":chart_data1["時分"].apply(lambda x: dt.datetime.strptime(x,'%H:%M').hour),"second":chart_data1["秒"]})
     chart_data1["深さ"] = pd.DataFrame({"Depth":chart_data1["深さ(km)"].apply(lambda x: float(x))})
     chart_data1["M"] = pd.DataFrame({"Magnitude":chart_data1["M"].apply(lambda x: float(x))})
-    chart_data1["緯度2"] = pd.DataFrame({"緯度2":chart_data1["緯度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
-    chart_data1["経度2"] = pd.DataFrame({"経度2":chart_data1["経度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
+    chart_data1["lat"] = pd.DataFrame({"lat":chart_data1["緯度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
+    chart_data1["lon"] = pd.DataFrame({"lon":chart_data1["経度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
 
+    chart_data1 = df_1.query(str(min(lat)) + "<= lat <="+ str(max(lat)))
+    chart_data1 = df_1.query(str(min(lon)) + "<= lon <="+ str(max(lon)))
+    chart_data1 = df_1.query(str(min(m)) + "<= M <="+ str(max(m)))
+    
     st.write("(3)直近の１週間データを基に、地震の分布を表したマップです。")
     import plotly.express as px
-    fig = px.density_mapbox(chart_data1, lat='緯度2', lon='経度2', z='M', radius=5,
-                            center=dict(lat=chart_data1["緯度2"].mean(), lon=chart_data1["経度2"].mean()), zoom=3,
+    fig = px.density_mapbox(chart_data1, lat='lat', lon='lon', z='M', radius=5,
+                            center=dict(lat=chart_data1["lat"].mean(), lon=chart_data1["lon"].mean()), zoom=3,
                             mapbox_style="stamen-terrain")
     st.plotly_chart(fig)
