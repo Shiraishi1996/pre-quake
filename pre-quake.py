@@ -10,17 +10,18 @@ import os
 
 p = 0
 # Everything is accessible via the st.secrets dict:
-username = st.text_input("username","****")
-password = st.text_input("password","****")
-if username == st.secrets["db_username"] and password == st.secrets["db_password"]:
+
+if os.environ["db_username"] == st.secrets["db_username"]:
     p = "example1"
-elif os.environ["db_username"] == st.secrets["db_username"]:
-    p = "example2"
+else:
+    username = st.text_input("username","")
+    password = st.text_input("password","")
+    if username == st.secrets["db_username"] and password == st.secrets["db_password"]:
+        p = "example2
 
 if p == 0:
     st.write("You don't have the right to enter this app.")
 elif p == "example1" or "example2":
-
     st.image("pre-image.jpg", width = 100)
     st.title("地震予測シミュレーション")
     st.write("詳細な設定は、サイドバーから行えます。指定したデータに基づいた時系列地震予測を行います。")
