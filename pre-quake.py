@@ -17,7 +17,7 @@ else:
     username = st.text_input("username","")
     password = st.text_input("password","")
     if username == st.secrets["db_username"] and password == st.secrets["db_password"]:
-        p = "example2
+        p = "example2"
 
 if p == 0:
     st.write("You don't have the right to enter this app.")
