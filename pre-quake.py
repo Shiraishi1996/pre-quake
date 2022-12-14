@@ -21,7 +21,7 @@ else:
 
 if p == 0:
     st.write("You don't have the right to enter this app.")
-elif p == "example1" or "example2":
+elif p == "example1" or p =="example2":
     st.image("pre-image.jpg", width = 100)
     st.title("地震予測シミュレーション")
     st.write("詳細な設定は、サイドバーから行えます。指定したデータに基づいた時系列地震予測を行います。")
