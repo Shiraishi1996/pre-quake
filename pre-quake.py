@@ -36,7 +36,7 @@ elif p == "example1" or p =="example2":
     m = st.sidebar.slider("マグニチュードを指定して予測する",0,9,(0,9))
     shindo = st.sidebar.slider("最大震度を指定して予測する(地震の近況では設定できません。)",1,7,(1,7))
     
-    if lat[1] - lat[0] >= 20　or lon[1] - lon[0] > = 20:
+    if lat[1] - lat[0] >= 20, lon[1] - lon[0] > = 20:
         st.write("範囲が広すぎます。エラーを起こす恐れがあります。")
     else:
         shift = 1
