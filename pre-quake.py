@@ -29,8 +29,6 @@ elif p == "example1" or p =="example2":
     st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
     search_keyword = st.text_input("地域を指定して予測する","")
     url = "https://pre-quake-en.streamlit.app/"
-    if st.button('Worldwide page'):
-        webbrowser.open_new_tab(url)
 
     st.sidebar.header('詳細な設定')
     lat = st.sidebar.slider('緯度を指定して予測する', 25, 50, (25,50))
