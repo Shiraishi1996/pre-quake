@@ -11,7 +11,7 @@ import warnings
 st.title("Geo-quake simulation")
 st.write("Detailed settings can be made from the sidebar. Time-series earthquake forecasts based on specified data. Note the distinction between upper and lower case letters.")
 st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
-search_keyword = st.text_input("Specify a region and make a prediction.","Japan")
+search_keyword = st.text_input("Specify a region and make a prediction.","")
 
 st.sidebar.header('Detail')
 lat = st.sidebar.slider('Prediction with latitude', -180, 180, (25,45))
