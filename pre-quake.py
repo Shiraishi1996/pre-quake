@@ -26,9 +26,9 @@ elif p == "example1" or p =="example2":
     st.title("地震予測シミュレーション")
     st.write("詳細な設定は、サイドバーから行えます。指定したデータに基づいた時系列地震予測を行います。")
     st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
-    search_keyword = st.text_input("地域を指定して予測する","福島県沖")
+    search_keyword = st.text_input("地域を指定して予測する","")
     url = "https://pre-quake-en.streamlit.app/"
-    st.write("check out this [English Page](%s)" % url)
+    st.button("[worldwide Page](%s)" % url)
 
     st.sidebar.header('詳細な設定')
     lat = st.sidebar.slider('緯度を指定して予測する', 25, 50, (25,50))
