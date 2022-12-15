@@ -8,6 +8,7 @@ import statsmodels.api as sm
 import warnings
 import os
 import webbrowser
+from PIL import Image
 
 image = Image.open('pre-image.jpg')
 st.set_page_conffig(
