@@ -9,7 +9,7 @@ import warnings
 import os
 import webbrowser
 
-image = Image.open('pre-quake.png')
+image = Image.open('pre-image.jpg')
 st.set_page_conffig(
     page_title="Geo-quake simulation", 
     page_icon=image, 
