@@ -31,11 +31,15 @@ elif p == "example1" or p =="example2":
     url = "https://pre-quake-en.streamlit.app/"
 
     st.sidebar.header('詳細な設定')
-    lat = st.sidebar.slider('緯度を指定して予測する', 25, 50, (25,50))
-    lon = st.sidebar.slider('経度を指定して予測する',120,145,(120,145))
+    lat = st.sidebar.slider('緯度を指定して予測する', 25, 50, (35,50))
+    lon = st.sidebar.slider('経度を指定して予測する',120,145,(135,145))
     m = st.sidebar.slider("マグニチュードを指定して予測する",0,9,(0,9))
     shindo = st.sidebar.slider("最大震度を指定して予測する(地震の近況では設定できません。)",1,7,(1,7))
-
+    if max(lat) - min(lat) >= 20　or max(lon) - min(lon) > = 20:
+        st.write("範囲が広すぎます。エラーを起こす恐れがあります。")
+    else:
+        shift = 1
+    
     a =[
     [28142,'父島近海',26.55,142.566666666667,70,6.1,2]	,
     [28174,'青森県東方沖',41.45,141.966666666667,60,5.6,3]	,
@@ -4861,298 +4865,299 @@ elif p == "example1" or p =="example2":
     [44860,'釧路沖',41.99,144.8833333,11,5.2,2]	,
     [44861,'釧路沖',42.00166667,144.8666667,13,5.1,1]]
 
-    co = st.checkbox("予測に用いるデータを見たい。(trainデータ)")
-    colon = st.checkbox("予測結果を見たい。（testデータ）")
-    col = st.checkbox("地震の近況を詳しく知りたい。")
+    if shift == 1:
+        co = st.checkbox("予測に用いるデータを見たい。(trainデータ)")
+        colon = st.checkbox("予測結果を見たい。（testデータ）")
+        col = st.checkbox("地震の近況を詳しく知りたい。")
 
-    def excel2python(excel_date):
-        excel_date = list(excel_date)
-        excel_date2 = []
-        for i in excel_date:
-            dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + i - 2)
-            excel_date2.append(dt)
-        return pd.DataFrame({"日付":excel_date2})
+        def excel2python(excel_date):
+            excel_date = list(excel_date)
+            excel_date2 = []
+            for i in excel_date:
+                dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + i - 2)
+                excel_date2.append(dt)
+            return pd.DataFrame({"日付":excel_date2})
 
-    df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
-    df_new = excel2python(df2["日付"])
-    df = df_new.join(df2.iloc[:,1:])
-    df = df[df["地域"].str.contains(search_keyword)]
-    df = df.query(str(min(lat)) + "<= 緯度 <="+ str(max(lat)))
-    df = df.query(str(min(lon)) + "<= 経度 <="+ str(max(lon)))
-    df = df.query(str(min(m)) + "<= マグニチュード <="+ str(max(m)))
-    df = df.query(str(min(shindo)) + "<= 最大震度 <="+ str(max(shindo)))
+        df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード","最大震度"])
+        df_new = excel2python(df2["日付"])
+        df = df_new.join(df2.iloc[:,1:])
+        df = df[df["地域"].str.contains(search_keyword)]
+        df = df.query(str(min(lat)) + "<= 緯度 <="+ str(max(lat)))
+        df = df.query(str(min(lon)) + "<= 経度 <="+ str(max(lon)))
+        df = df.query(str(min(m)) + "<= マグニチュード <="+ str(max(m)))
+        df = df.query(str(min(shindo)) + "<= 最大震度 <="+ str(max(shindo)))
 
-    df3 = df2[df2["地域"].str.contains(search_keyword)]
-    df3 = df3.query(str(min(lat)) + "<= 緯度 <="+ str(max(lat)))
-    df3 = df3.query(str(min(lon)) + "<= 経度 <="+ str(max(lon)))
-    df3 = df3.query(str(min(m)) + "<= マグニチュード <="+ str(max(m)))
-    df3 = df3.query(str(min(shindo)) + "<= 最大震度 <="+ str(max(shindo)))
-    df2 = df3
+        df3 = df2[df2["地域"].str.contains(search_keyword)]
+        df3 = df3.query(str(min(lat)) + "<= 緯度 <="+ str(max(lat)))
+        df3 = df3.query(str(min(lon)) + "<= 経度 <="+ str(max(lon)))
+        df3 = df3.query(str(min(m)) + "<= マグニチュード <="+ str(max(m)))
+        df3 = df3.query(str(min(shindo)) + "<= 最大震度 <="+ str(max(shindo)))
+        df2 = df3
 
-    def exceltopython(int):
-        dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int - 2)
-        return dt
+        def exceltopython(int):
+            dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int - 2)
+            return dt
 
-    if co:
-        st.dataframe(df)
+        if co:
+            st.dataframe(df)
 
-        df_len = len(df[df["地域"].str.contains(search_keyword)])
+            df_len = len(df[df["地域"].str.contains(search_keyword)])
 
-        import plotly.express as px
+            import plotly.express as px
 
-        fig = px.line(df, x="日付", y="深さ(km)", title='Depth (km)')
-        fig2 = px.line(df, x="日付", y="マグニチュード", title='Magnitude')
-        fig3 = px.line(df, x="日付", y="緯度", title='lat')
-        fig4 = px.line(df, x="日付", y="経度", title='lon')
-        fig5 = px.line(df, x="日付", y="最大震度", title='Seismic intensity')
+            fig = px.line(df, x="日付", y="深さ(km)", title='Depth (km)')
+            fig2 = px.line(df, x="日付", y="マグニチュード", title='Magnitude')
+            fig3 = px.line(df, x="日付", y="緯度", title='lat')
+            fig4 = px.line(df, x="日付", y="経度", title='lon')
+            fig5 = px.line(df, x="日付", y="最大震度", title='Seismic intensity')
 
-        st.plotly_chart(fig)
-        st.plotly_chart(fig2)
-        st.plotly_chart(fig3)
-        st.plotly_chart(fig4)
-        st.plotly_chart(fig5)
+            st.plotly_chart(fig)
+            st.plotly_chart(fig2)
+            st.plotly_chart(fig3)
+            st.plotly_chart(fig4)
+            st.plotly_chart(fig5)
 
-    if colon:
-        import warnings
-        warnings.filterwarnings('ignore') # 計算警告を非表示
+        if colon:
+            import warnings
+            warnings.filterwarnings('ignore') # 計算警告を非表示
 
-        dateinput = st.date_input("予測する年月日を入力してください。（該当日よりも前のデータを基に、該当日より後の１年間を予測します。）",dt.date(datetime.now().year,datetime.now().month,datetime.now().day))
+            dateinput = st.date_input("予測する年月日を入力してください。（該当日よりも前のデータを基に、該当日より後の１年間を予測します。）",dt.date(datetime.now().year,datetime.now().month,datetime.now().day))
 
-        year_date = str(dateinput.strftime("%Y")) + '/' + str(dateinput.strftime('%m')) + "/" + str(dateinput.strftime("%d"))
+            year_date = str(dateinput.strftime("%Y")) + '/' + str(dateinput.strftime('%m')) + "/" + str(dateinput.strftime("%d"))
 
-        dt2 = datetime.strptime(year_date, '%Y/%m/%d') - datetime(1899, 12, 31)
-        serial = dt2.days + 1
+            dt2 = datetime.strptime(year_date, '%Y/%m/%d') - datetime(1899, 12, 31)
+            serial = dt2.days + 1
 
-        df3 = df3[df3["日付"] <= serial]
+            df3 = df3[df3["日付"] <= serial]
 
-        passengers_diff = df3["日付"] - df3['日付'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
-        passengers_diff = passengers_diff.dropna() # 1個できるNaNデータは捨てる
+            passengers_diff = df3["日付"] - df3['日付'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
+            passengers_diff = passengers_diff.dropna() # 1個できるNaNデータは捨てる
 
-        # 自動ARMAパラメータ推定関数
-        res_selection = sm.tsa.SARIMAX(df3["日付"], order=(1,1,1),seasonal_order=(1,1,0,12))
-        result = res_selection.fit()
-        result.summary()
+            # 自動ARMAパラメータ推定関数
+            res_selection = sm.tsa.SARIMAX(df3["日付"], order=(1,1,1),seasonal_order=(1,1,0,12))
+            result = res_selection.fit()
+            result.summary()
 
-        date = datetime(int(str(dateinput.strftime("%Y-%m-%d"))[0:4]),int(str(dateinput.strftime("%Y-%m-%d"))[5:7]),int(str(dateinput.strftime("%Y-%m-%d"))[8:10]))
-        date2 = dt.timedelta(days = 365) + date
-    
-        p = 0 
-        bestPred = result.predict(len(df3["日付"]),len(df3["日付"])+ p)
-        while date2 >= exceltopython(int(max(bestPred))):
-            p += 1
+            date = datetime(int(str(dateinput.strftime("%Y-%m-%d"))[0:4]),int(str(dateinput.strftime("%Y-%m-%d"))[5:7]),int(str(dateinput.strftime("%Y-%m-%d"))[8:10]))
+            date2 = dt.timedelta(days = 365) + date
+
+            p = 0 
             bestPred = result.predict(len(df3["日付"]),len(df3["日付"])+ p)
+            while date2 >= exceltopython(int(max(bestPred))):
+                p += 1
+                bestPred = result.predict(len(df3["日付"]),len(df3["日付"])+ p)
 
-        passengers_diff2 = df3["最大震度"] - df3['最大震度'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
-        passengers_diff2 = passengers_diff.dropna() # 1個できるNaNデータは捨てる
+            passengers_diff2 = df3["最大震度"] - df3['最大震度'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
+            passengers_diff2 = passengers_diff.dropna() # 1個できるNaNデータは捨てる
 
-        # 自動ARMAパラメータ推定関数
-        res_selection2 = sm.tsa.SARIMAX(df3["最大震度"], order=(1,1,1),seasonal_order=(1,1,0,12))
-        result2 = res_selection2.fit()
-        result2.summary()
+            # 自動ARMAパラメータ推定関数
+            res_selection2 = sm.tsa.SARIMAX(df3["最大震度"], order=(1,1,1),seasonal_order=(1,1,0,12))
+            result2 = res_selection2.fit()
+            result2.summary()
 
-        bestPred2 = result2.predict(len(df3["日付"]),len(df3["日付"])+p)
+            bestPred2 = result2.predict(len(df3["日付"]),len(df3["日付"])+p)
 
 
-        # 自動ARMAパラメータ推定関数
-        passengers_diff3 = df3["緯度"] - df3['緯度'].shift()
-        res_selection3 = sm.tsa.SARIMAX(df3["緯度"], order=(1,1,1),seasonal_order=(1,1,0,12))
-        result3 = res_selection3.fit()
-        result3.summary()
-        bestPred3 = result3.predict(len(df3["日付"]),len(df3["日付"])+p)
+            # 自動ARMAパラメータ推定関数
+            passengers_diff3 = df3["緯度"] - df3['緯度'].shift()
+            res_selection3 = sm.tsa.SARIMAX(df3["緯度"], order=(1,1,1),seasonal_order=(1,1,0,12))
+            result3 = res_selection3.fit()
+            result3.summary()
+            bestPred3 = result3.predict(len(df3["日付"]),len(df3["日付"])+p)
 
-        # 自動ARMAパラメータ推定関数
-        passengers_diff4 = df3["経度"] - df3['経度'].shift()
-        res_selection4 = sm.tsa.SARIMAX(df3["経度"], order=(1,1,1),seasonal_order=(1,1,0,12))
-        result4 = res_selection4.fit()
-        result4.summary()
-        bestPred4 = result4.predict(len(df3["日付"]),len(df3["日付"])+p)
+            # 自動ARMAパラメータ推定関数
+            passengers_diff4 = df3["経度"] - df3['経度'].shift()
+            res_selection4 = sm.tsa.SARIMAX(df3["経度"], order=(1,1,1),seasonal_order=(1,1,0,12))
+            result4 = res_selection4.fit()
+            result4.summary()
+            bestPred4 = result4.predict(len(df3["日付"]),len(df3["日付"])+p)
 
-        res_selection5 = sm.tsa.SARIMAX(df3["マグニチュード"], order=(1,1,1),seasonal_order=(1,1,0,12))
-        result5 = res_selection5.fit()
-        result5.summary()
-        bestPred5 = result5.predict(len(df3["日付"]),len(df3["日付"])+p)
+            res_selection5 = sm.tsa.SARIMAX(df3["マグニチュード"], order=(1,1,1),seasonal_order=(1,1,0,12))
+            result5 = res_selection5.fit()
+            result5.summary()
+            bestPred5 = result5.predict(len(df3["日付"]),len(df3["日付"])+p)
 
-        def sum_passengers(n):
-            days_count = 0
-            for i in range(n):
-                days_count += (bestPred.iloc[i])
-            return days_count
+            def sum_passengers(n):
+                days_count = 0
+                for i in range(n):
+                    days_count += (bestPred.iloc[i])
+                return days_count
 
-        def list_making():
-            f = pd.to_datetime("1899/12/30")
-            #print(f)
-            point = pd.to_timedelta(bestPred.round().astype(int),unit="D",errors="coerce")+f
-            point2 = bestPred2
-            point3 = bestPred3
-            point4 = bestPred4
-            point5 = bestPred5
-            point = sorted(point)
-            return pd.DataFrame({"time":point,"seismic intensity":point2.round().astype(int),"lat":point3,"lon":point4,"M":point5.round(1).astype(float)})
+            def list_making():
+                f = pd.to_datetime("1899/12/30")
+                #print(f)
+                point = pd.to_timedelta(bestPred.round().astype(int),unit="D",errors="coerce")+f
+                point2 = bestPred2
+                point3 = bestPred3
+                point4 = bestPred4
+                point5 = bestPred5
+                point = sorted(point)
+                return pd.DataFrame({"time":point,"seismic intensity":point2.round().astype(int),"lat":point3,"lon":point4,"M":point5.round(1).astype(float)})
 
-        a = list_making()[list_making()["time"]<=date2]
-        a = a[a["time"]>=date]
-        
-        st.title("地震予測AI分析")
-        st.write("データが少なすぎる場合は、地震の予測結果がエラーを起こすことがあります。1年間の予測結果が閲覧できます。")
-        st.write("以下に記載しているのが、現在発令中の地震予測です。")
-        
-        if max(a["seismic intensity"].round(0))==7:
-            st.write("震度7の予測が出ています。最大限注意して、行動するようにしてください。")
-        elif max(a["seismic intensity"].round(0))==6:
-            st.write("震度6弱ー6強の予測が出ています。注意して、行動するようにしてください。")
-        elif max(a["seismic intensity"].round(0))==5:
-            st.write("震度5弱ー5強の予測が出ています。注意して、行動するようにしてください。")
-        elif max(a["seismic intensity"].round(0))==4:
-            st.write("震度4の予測が出ています。落ち着いて、行動するようにしてください。")
-        else:
-            st.write("現在、大規模地震の予測は出ていません。比較的安全だとは思われますが、注意して行動しましょう。")
+            a = list_making()[list_making()["time"]<=date2]
+            a = a[a["time"]>=date]
 
-        import plotly.express as px
-        fig = px.density_mapbox(a, lat='lat', lon='lon', z='seismic intensity', radius=20,
-                                center=dict(lat=a["lat"].mean(), lon=a["lon"].mean()), zoom=5,
-                                mapbox_style="stamen-terrain")
-        st.plotly_chart(fig)
-        st.dataframe(a)
-        
-    import snscrape.modules.twitter as sntwitter
-    import itertools
-    import requests  # HTTPリクエスト
-    from bs4 import BeautifulSoup  # HTML解析
+            st.title("地震予測AI分析")
+            st.write("データが少なすぎる場合は、地震の予測結果がエラーを起こすことがあります。1年間の予測結果が閲覧できます。")
+            st.write("以下に記載しているのが、現在発令中の地震予測です。")
 
-    @st.cache
-    def convert_df(df):
-        # IMPORTANT: Cache the conversion to prevent computation on every rerun
-        return df.to_csv().encode("utf-8-sig")
+            if max(a["seismic intensity"].round(0))==7:
+                st.write("震度7の予測が出ています。最大限注意して、行動するようにしてください。")
+            elif max(a["seismic intensity"].round(0))==6:
+                st.write("震度6弱ー6強の予測が出ています。注意して、行動するようにしてください。")
+            elif max(a["seismic intensity"].round(0))==5:
+                st.write("震度5弱ー5強の予測が出ています。注意して、行動するようにしてください。")
+            elif max(a["seismic intensity"].round(0))==4:
+                st.write("震度4の予測が出ています。落ち着いて、行動するようにしてください。")
+            else:
+                st.write("現在、大規模地震の予測は出ていません。比較的安全だとは思われますが、注意して行動しましょう。")
 
-    if col:
-        # 震源リストに掲載されている年月日をshingen_listへ格納
-        st.write("(1)Twitterの上位検索結果を取得")
-        dt_today = dt.date.today()
-        dt_minus = dt.timedelta(days = 10)
-        dt_week = dt_today - dt_minus
+            import plotly.express as px
+            fig = px.density_mapbox(a, lat='lat', lon='lon', z='seismic intensity', radius=20,
+                                    center=dict(lat=a["lat"].mean(), lon=a["lon"].mean()), zoom=5,
+                                    mapbox_style="stamen-terrain")
+            st.plotly_chart(fig)
+            st.dataframe(a)
 
-        dt_3 = dt_today - dt.timedelta(days = 3)
-        dt_2 = dt_today - dt.timedelta(days = 2)
-        dt_1 = dt_today - dt.timedelta(days = 1)
-        dt_4 = dt_today - dt.timedelta(days = 4)
-        dt_5 = dt_today - dt.timedelta(days = 5)
-        dt_6 = dt_today - dt.timedelta(days = 6)
-        dt_7 = dt_today - dt.timedelta(days = 7)
+        import snscrape.modules.twitter as sntwitter
+        import itertools
+        import requests  # HTTPリクエスト
+        from bs4 import BeautifulSoup  # HTML解析
 
-        #twitterでスクレイピングを行い特定キーワードの情報を取得
-        scraped_tweets = sntwitter.TwitterSearchScraper(search_keyword+" 地震").get_items()
+        @st.cache
+        def convert_df(df):
+            # IMPORTANT: Cache the conversion to prevent computation on every rerun
+            return df.to_csv().encode("utf-8-sig")
 
-        #最初の10ツイートだけを取得し格納
-        sliced_scraped_tweets = itertools.islice(scraped_tweets, 10)
+        if col:
+            # 震源リストに掲載されている年月日をshingen_listへ格納
+            st.write("(1)Twitterの上位検索結果を取得")
+            dt_today = dt.date.today()
+            dt_minus = dt.timedelta(days = 10)
+            dt_week = dt_today - dt_minus
 
-        #データフレームに変換する
-        df2 = pd.DataFrame(sliced_scraped_tweets)
+            dt_3 = dt_today - dt.timedelta(days = 3)
+            dt_2 = dt_today - dt.timedelta(days = 2)
+            dt_1 = dt_today - dt.timedelta(days = 1)
+            dt_4 = dt_today - dt.timedelta(days = 4)
+            dt_5 = dt_today - dt.timedelta(days = 5)
+            dt_6 = dt_today - dt.timedelta(days = 6)
+            dt_7 = dt_today - dt.timedelta(days = 7)
 
-        st.dataframe(df2) 
+            #twitterでスクレイピングを行い特定キーワードの情報を取得
+            scraped_tweets = sntwitter.TwitterSearchScraper(search_keyword+" 地震").get_items()
 
-        csv2 = convert_df(df2)
+            #最初の10ツイートだけを取得し格納
+            sliced_scraped_tweets = itertools.islice(scraped_tweets, 10)
 
-        st.download_button(
-            label="Download data as CSV",
-            data=csv2,
-            file_name='Twitter_analysis'+str(search_keyword)+'.csv',
-            mime='text/csv',
-        )
+            #データフレームに変換する
+            df2 = pd.DataFrame(sliced_scraped_tweets)
 
-        ## 目次のURLをURL_indexに代入
-        URL_index = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/index.html"
+            st.dataframe(df2) 
 
-        ## requestsモジュールのgetメソッドを使うと，Webサーバーに「このページちょうだい」と要求できる
-        res = requests.get(URL_index)
+            csv2 = convert_df(df2)
 
-        ## getしたWebページの中身(res.content)をBeautifulSoupに渡して，HTMLを解析してもらう
-        ## 引数"html.parser"は「HTMLを解析してね」という意味。
-        ## これ ↑ がないとXML形式として認識されてしまいエラーになることがあるらしい。
-        soup = BeautifulSoup(res.content, "html.parser")
+            st.download_button(
+                label="Download data as CSV",
+                data=csv2,
+                file_name='Twitter_analysis'+str(search_keyword)+'.csv',
+                mime='text/csv',
+            )
 
-        ## soup.find_all("a")
-        ## ...... <a>タグを全て拾ってくる
-        ## i.get("href")
-        ## ...... [<a>タグの中の] href属性（URLが入ってる）を取得する
-        ## len(i.get("href))==13
-        ## ...... 同ページ内にもいろいろリンクがあったので，文字数を指定して必要なものだけ選別
-        shingen_list = [i.get("href") for i in soup.find_all("a") if len(i.get("href"))==13]
+            ## 目次のURLをURL_indexに代入
+            URL_index = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/index.html"
 
-        format_dict_1 = {"年":4, "月":2, "日":2, "時分":5, "秒":4, 
-                        "緯度":10, "経度":10, 
-                        "深さ(km)":7, "M":5, "震央地名":34}
+            ## requestsモジュールのgetメソッドを使うと，Webサーバーに「このページちょうだい」と要求できる
+            res = requests.get(URL_index)
 
-        ## 入力された1行のレコードを分割する関数を定義
-        def split_record_1(record):
-            record_list = []
-            cnt = 0
-
-            # 「震央地名」は全角文字で長さが34よりズレるので行ごと修正
-            for p,c in enumerate(record[59:]):
-                if c == " ":
-                    break
-
-            # スライスで取り出す
-            for name,i in format_dict_1.items():
-                record_list.append(record[cnt:cnt+i])
-                cnt += i+1
-            return record_list
-
-        URL1 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_1.strftime("%Y%m%d")) +".html"
-        URL2 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_2.strftime("%Y%m%d")) +".html"
-        URL3 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_3.strftime("%Y%m%d")) +".html"
-        URL4 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_4.strftime("%Y%m%d")) +".html"
-        URL5 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_5.strftime("%Y%m%d")) +".html"
-        URL6 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_6.strftime("%Y%m%d")) +".html"
-        URL7 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_7.strftime("%Y%m%d")) +".html"
-
-        df_1 = []  # スクレイピング＆分割結果をここへ格納
-
-        ## ページでforループ
-        for day in [URL2,URL3,URL4,URL5,URL6,URL7]:
-            url = day
-
-            res = requests.get(url)
+            ## getしたWebページの中身(res.content)をBeautifulSoupに渡して，HTMLを解析してもらう
+            ## 引数"html.parser"は「HTMLを解析してね」という意味。
+            ## これ ↑ がないとXML形式として認識されてしまいエラーになることがあるらしい。
             soup = BeautifulSoup(res.content, "html.parser")
-            r = soup.pre.text  # レコード部分を抽出(<pre>タグ指定)
 
-                # ループで1行ずつ取り出す
-                # ...... 改行文字"\n"で分割すれば行へ分割できる
-                # ...... if len(i)>1 は，空白行をスキップするため
-                # ...... [2:]はヘッダー（カラム名，線（=====））をスキップするため
-            for record in [i for i in r.split("\n") if len(i)>1][2:]:
-                df_1.append(split_record_1(record))
+            ## soup.find_all("a")
+            ## ...... <a>タグを全て拾ってくる
+            ## i.get("href")
+            ## ...... [<a>タグの中の] href属性（URLが入ってる）を取得する
+            ## len(i.get("href))==13
+            ## ...... 同ページ内にもいろいろリンクがあったので，文字数を指定して必要なものだけ選別
+            shingen_list = [i.get("href") for i in soup.find_all("a") if len(i.get("href"))==13]
 
-        st.write("(2)直近の検索地域の地震データを2日前から一週間分遡って表示します。")
+            format_dict_1 = {"年":4, "月":2, "日":2, "時分":5, "秒":4, 
+                            "緯度":10, "経度":10, 
+                            "深さ(km)":7, "M":5, "震央地名":34}
 
-        df_1 = pd.DataFrame(df_1, columns=format_dict_1.keys())
+            ## 入力された1行のレコードを分割する関数を定義
+            def split_record_1(record):
+                record_list = []
+                cnt = 0
 
-        st.dataframe(df_1[df_1["震央地名"].str.contains(search_keyword)])
+                # 「震央地名」は全角文字で長さが34よりズレるので行ごと修正
+                for p,c in enumerate(record[59:]):
+                    if c == " ":
+                        break
 
-        csv3 = convert_df(df_1)
+                # スライスで取り出す
+                for name,i in format_dict_1.items():
+                    record_list.append(record[cnt:cnt+i])
+                    cnt += i+1
+                return record_list
 
-        st.download_button(
-            label="Download data as CSV",
-            data=csv3,
-            file_name='JMA_analysis'+str(search_keyword)+'csv',
-            mime='text/csv',
-        )
-        df_1 = df_1[df_1["震央地名"].str.contains(search_keyword)].sort_index(ascending=False)
-        chart_data1 = df_1[~pd.to_numeric(df_1["深さ(km)"], errors="coerce").isnull()]
-        chart_data1 = df_1[~pd.to_numeric(df_1["M"], errors="coerce").isnull()]
-        chart_data1["年月日"] = pd.to_datetime({'year':chart_data1["年"],'month':chart_data1["月"],'day':chart_data1["日"],"hour":chart_data1["時分"].apply(lambda x: dt.datetime.strptime(x,'%H:%M').hour),"minute":chart_data1["時分"].apply(lambda x: dt.datetime.strptime(x,'%H:%M').hour),"second":chart_data1["秒"]})
-        chart_data1["深さ"] = pd.DataFrame({"Depth":chart_data1["深さ(km)"].apply(lambda x: float(x))})
-        chart_data1["M"] = pd.DataFrame({"Magnitude":chart_data1["M"].apply(lambda x: float(x))})
-        chart_data1["lat"] = pd.DataFrame({"lat":chart_data1["緯度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
-        chart_data1["lon"] = pd.DataFrame({"lon":chart_data1["経度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
+            URL1 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_1.strftime("%Y%m%d")) +".html"
+            URL2 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_2.strftime("%Y%m%d")) +".html"
+            URL3 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_3.strftime("%Y%m%d")) +".html"
+            URL4 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_4.strftime("%Y%m%d")) +".html"
+            URL5 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_5.strftime("%Y%m%d")) +".html"
+            URL6 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_6.strftime("%Y%m%d")) +".html"
+            URL7 = "https://www.data.jma.go.jp/svd/eqev/data/daily_map/" + str(dt_7.strftime("%Y%m%d")) +".html"
 
-        chart_data1 = chart_data1.query(str(min(lat)) + "<= lat <="+ str(max(lat)))
-        chart_data1 = chart_data1.query(str(min(lon)) + "<= lon <="+ str(max(lon)))
-        chart_data1 = chart_data1.query(str(min(m)) + "<= M <="+ str(max(m)))
-        
-        st.write("(3)直近の１週間データを基に、地震の分布を表したマップです。")
-        import plotly.express as px
-        fig = px.density_mapbox(chart_data1, lat='lat', lon='lon', z='M', radius=5,
-                                center=dict(lat=chart_data1["lat"].mean(), lon=chart_data1["lon"].mean()), zoom=3,
-                                mapbox_style="stamen-terrain")
-        st.plotly_chart(fig)
+            df_1 = []  # スクレイピング＆分割結果をここへ格納
+
+            ## ページでforループ
+            for day in [URL2,URL3,URL4,URL5,URL6,URL7]:
+                url = day
+
+                res = requests.get(url)
+                soup = BeautifulSoup(res.content, "html.parser")
+                r = soup.pre.text  # レコード部分を抽出(<pre>タグ指定)
+
+                    # ループで1行ずつ取り出す
+                    # ...... 改行文字"\n"で分割すれば行へ分割できる
+                    # ...... if len(i)>1 は，空白行をスキップするため
+                    # ...... [2:]はヘッダー（カラム名，線（=====））をスキップするため
+                for record in [i for i in r.split("\n") if len(i)>1][2:]:
+                    df_1.append(split_record_1(record))
+
+            st.write("(2)直近の検索地域の地震データを2日前から一週間分遡って表示します。")
+
+            df_1 = pd.DataFrame(df_1, columns=format_dict_1.keys())
+
+            st.dataframe(df_1[df_1["震央地名"].str.contains(search_keyword)])
+
+            csv3 = convert_df(df_1)
+
+            st.download_button(
+                label="Download data as CSV",
+                data=csv3,
+                file_name='JMA_analysis'+str(search_keyword)+'csv',
+                mime='text/csv',
+            )
+            df_1 = df_1[df_1["震央地名"].str.contains(search_keyword)].sort_index(ascending=False)
+            chart_data1 = df_1[~pd.to_numeric(df_1["深さ(km)"], errors="coerce").isnull()]
+            chart_data1 = df_1[~pd.to_numeric(df_1["M"], errors="coerce").isnull()]
+            chart_data1["年月日"] = pd.to_datetime({'year':chart_data1["年"],'month':chart_data1["月"],'day':chart_data1["日"],"hour":chart_data1["時分"].apply(lambda x: dt.datetime.strptime(x,'%H:%M').hour),"minute":chart_data1["時分"].apply(lambda x: dt.datetime.strptime(x,'%H:%M').hour),"second":chart_data1["秒"]})
+            chart_data1["深さ"] = pd.DataFrame({"Depth":chart_data1["深さ(km)"].apply(lambda x: float(x))})
+            chart_data1["M"] = pd.DataFrame({"Magnitude":chart_data1["M"].apply(lambda x: float(x))})
+            chart_data1["lat"] = pd.DataFrame({"lat":chart_data1["緯度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
+            chart_data1["lon"] = pd.DataFrame({"lon":chart_data1["経度"].apply(lambda x: float(x[:x.find("°")])+float(x[x.find("°")+1:x.find("'")])/60)})    
+
+            chart_data1 = chart_data1.query(str(min(lat)) + "<= lat <="+ str(max(lat)))
+            chart_data1 = chart_data1.query(str(min(lon)) + "<= lon <="+ str(max(lon)))
+            chart_data1 = chart_data1.query(str(min(m)) + "<= M <="+ str(max(m)))
+
+            st.write("(3)直近の１週間データを基に、地震の分布を表したマップです。")
+            import plotly.express as px
+            fig = px.density_mapbox(chart_data1, lat='lat', lon='lon', z='M', radius=5,
+                                    center=dict(lat=chart_data1["lat"].mean(), lon=chart_data1["lon"].mean()), zoom=3,
+                                    mapbox_style="stamen-terrain")
+            st.plotly_chart(fig)
