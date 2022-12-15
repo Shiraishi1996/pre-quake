@@ -11,7 +11,7 @@ import webbrowser
 from PIL import Image
 
 image = Image.open('pre-image.jpg')
-st.set_page_conffig(
+st.set_page_config(
     page_title="Geo-quake simulation", 
     page_icon=image, 
     layout="wide", 
