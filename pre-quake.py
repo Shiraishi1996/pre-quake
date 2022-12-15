@@ -9,6 +9,19 @@ import warnings
 import os
 import webbrowser
 
+image = Image.open('pre-quake.png')
+st.set_page_conffig(
+    page_title="Geo-quake simulation", 
+    page_icon=image, 
+    layout="wide", 
+    initial_sidebar_state="auto", 
+    menu_items={
+         'About': """
+         #Geo-quake simulation
+         This application performs time series analysis based on the selected data and makes it predict earthquakes using statistical methods.
+         """
+     })
+
 p = 0
 # Everything is accessible via the st.secrets dict:
 
@@ -23,7 +36,6 @@ else:
 if p == 0:
     st.write("You don't have the right to enter this app.")
 elif p == "example1" or p =="example2":
-    st.image("pre-image.jpg", width = 100)
     st.title("地震予測シミュレーション")
     st.write("詳細な設定は、サイドバーから行えます。指定したデータに基づいた時系列地震予測を行います。")
     st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
