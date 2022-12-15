@@ -14,9 +14,14 @@ st.markdown("<span style=“background-color:#fff”>",unsafe_allow_html=True)
 search_keyword = st.text_input("Specify a region and make a prediction.","Japan")
 
 st.sidebar.header('Detail')
-lat = st.sidebar.slider('Prediction with latitude', -180, 180, (25,50))
-lon = st.sidebar.slider('Prediction with longitude',-180, 180,(120,145))
+lat = st.sidebar.slider('Prediction with latitude', -180, 180, (25,45))
+lon = st.sidebar.slider('Prediction with longitude',-180, 180,(125,145))
 m = st.sidebar.slider("Specify magnitude and make a prediction",0,9,(0,9))
+
+if lat[1] - lat[0] > 20 or lon[1] - lon[0] > 20:
+    st.write("The range is too wide. The latitude and longitude range should be set to 20°.")
+else:
+    shift = 1
 
 a =[
 [40883,'53 km S of Pangai  Tonga',-20.297,-174.388,35,5],
@@ -18701,185 +18706,187 @@ a =[
 [44908,'Kermadec Islands region',-28.1143,-178.2251,60.866,5.4]
 ]
 
-co = st.checkbox("View the data used for forecasting.(train data)")
-colon = st.checkbox("View Prediction Results (test data)")
-col = st.checkbox("Learn more about the recent status of earthquakes.")
+if shift == 1:
+        
+    co = st.checkbox("View the data used for forecasting.(train data)")
+    colon = st.checkbox("View Prediction Results (test data)")
+    col = st.checkbox("Learn more about the recent status of earthquakes.")
 
-def excel2python(excel_date):
-    excel_date = list(excel_date)
-    excel_date2 = []
-    for i in excel_date:
-        dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + i - 2)
-        excel_date2.append(dt)
-    return pd.DataFrame({"日付":excel_date2})
+    def excel2python(excel_date):
+        excel_date = list(excel_date)
+        excel_date2 = []
+        for i in excel_date:
+            dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + i - 2)
+            excel_date2.append(dt)
+        return pd.DataFrame({"日付":excel_date2})
 
-df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード"])
-df_new = excel2python(df2["日付"])
-df = df_new.join(df2.iloc[:,1:])
-df = df[df["地域"].str.contains(search_keyword)]
-df = df.query(str(min(lat)) + "<= 緯度 <="+ str(max(lat)))
-df = df.query(str(min(lon)) + "<= 経度 <="+ str(max(lon)))
-df = df.query(str(min(m)) + "<= マグニチュード <="+ str(max(m)))
+    df2 = pd.DataFrame(a,columns = ["日付","地域","緯度","経度","深さ(km)","マグニチュード"])
+    df_new = excel2python(df2["日付"])
+    df = df_new.join(df2.iloc[:,1:])
+    df = df[df["地域"].str.contains(search_keyword)]
+    df = df.query(str(min(lat)) + "<= 緯度 <="+ str(max(lat)))
+    df = df.query(str(min(lon)) + "<= 経度 <="+ str(max(lon)))
+    df = df.query(str(min(m)) + "<= マグニチュード <="+ str(max(m)))
 
-df3 = df2[df2["地域"].str.contains(search_keyword)]
-df3 = df3.query(str(min(lat)) + "<= 緯度 <="+ str(max(lat)))
-df3 = df3.query(str(min(lon)) + "<= 経度 <="+ str(max(lon)))
-df3 = df3.query(str(min(m)) + "<= マグニチュード <="+ str(max(m)))
-df2 = df3
+    df3 = df2[df2["地域"].str.contains(search_keyword)]
+    df3 = df3.query(str(min(lat)) + "<= 緯度 <="+ str(max(lat)))
+    df3 = df3.query(str(min(lon)) + "<= 経度 <="+ str(max(lon)))
+    df3 = df3.query(str(min(m)) + "<= マグニチュード <="+ str(max(m)))
+    df2 = df3
 
-def exceltopython(int):
-    dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int - 2)
-    return dt
+    def exceltopython(int):
+        dt = datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int - 2)
+        return dt
 
-if co:
-    st.dataframe(df)
+    if co:
+        st.dataframe(df)
 
-    df_len = len(df[df["地域"].str.contains(search_keyword)])
+        df_len = len(df[df["地域"].str.contains(search_keyword)])
 
-    import plotly.express as px
+        import plotly.express as px
 
-    fig = px.line(df, x="日付", y="深さ(km)", title='Depth (km)')
-    fig2 = px.line(df, x="日付", y="マグニチュード", title='Magnitude')
-    fig3 = px.line(df, x="日付", y="緯度", title='lat')
-    fig4 = px.line(df, x="日付", y="経度", title='lon')
+        fig = px.line(df, x="日付", y="深さ(km)", title='Depth (km)')
+        fig2 = px.line(df, x="日付", y="マグニチュード", title='Magnitude')
+        fig3 = px.line(df, x="日付", y="緯度", title='lat')
+        fig4 = px.line(df, x="日付", y="経度", title='lon')
 
-    st.plotly_chart(fig)
-    st.plotly_chart(fig2)
-    st.plotly_chart(fig3)
-    st.plotly_chart(fig4)
+        st.plotly_chart(fig)
+        st.plotly_chart(fig2)
+        st.plotly_chart(fig3)
+        st.plotly_chart(fig4)
 
-if colon:
-    import warnings
-    warnings.filterwarnings('ignore') # 計算警告を非表示
+    if colon:
+        import warnings
+        warnings.filterwarnings('ignore') # 計算警告を非表示
 
-    dateinput = st.date_input("Please enter the date you wish to forecast. (Based on data prior to the relevant date, we will forecast for the year after the relevant date.)",dt.date(datetime.now().year,datetime.now().month,datetime.now().day))
+        dateinput = st.date_input("Please enter the date you wish to forecast. (Based on data prior to the relevant date, we will forecast for the year after the relevant date.)",dt.date(datetime.now().year,datetime.now().month,datetime.now().day))
 
-    year_date = str(dateinput.strftime("%Y")) + '/' + str(dateinput.strftime('%m')) + "/" + str(dateinput.strftime("%d"))
+        year_date = str(dateinput.strftime("%Y")) + '/' + str(dateinput.strftime('%m')) + "/" + str(dateinput.strftime("%d"))
 
-    dt2 = datetime.strptime(year_date, '%Y/%m/%d') - datetime(1899, 12, 31)
-    serial = dt2.days + 1
+        dt2 = datetime.strptime(year_date, '%Y/%m/%d') - datetime(1899, 12, 31)
+        serial = dt2.days + 1
 
-    df3 = df3[df3["日付"] <= serial]
+        df3 = df3[df3["日付"] <= serial]
 
-    passengers_diff = df3["日付"] - df3['日付'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
-    passengers_diff = passengers_diff.dropna() # 1個できるNaNデータは捨てる
+        passengers_diff = df3["日付"] - df3['日付'].shift() # 差分(1階差)　Pandasのdiff()でpassengers.diff()としてもOK
+        passengers_diff = passengers_diff.dropna() # 1個できるNaNデータは捨てる
 
-    # 自動ARMAパラメータ推定関数
-    res_selection = sm.tsa.SARIMAX(df3["日付"], order=(1,1,1),seasonal_order=(1,1,0,12))
-    result = res_selection.fit()
-    result.summary()
+        # 自動ARMAパラメータ推定関数
+        res_selection = sm.tsa.SARIMAX(df3["日付"], order=(1,1,1),seasonal_order=(1,1,0,12))
+        result = res_selection.fit()
+        result.summary()
 
-    date = datetime(int(str(dateinput.strftime("%Y-%m-%d"))[0:4]),int(str(dateinput.strftime("%Y-%m-%d"))[5:7]),int(str(dateinput.strftime("%Y-%m-%d"))[8:10]))
-    date2 = dt.timedelta(days = 365) + date
- 
-    p = 0 
-    bestPred = result.predict(len(df3["日付"]),len(df3["日付"])+ p)
-    while date2 >= exceltopython(int(max(bestPred))):
-        p += 1
+        date = datetime(int(str(dateinput.strftime("%Y-%m-%d"))[0:4]),int(str(dateinput.strftime("%Y-%m-%d"))[5:7]),int(str(dateinput.strftime("%Y-%m-%d"))[8:10]))
+        date2 = dt.timedelta(days = 365) + date
+    
+        p = 0 
         bestPred = result.predict(len(df3["日付"]),len(df3["日付"])+ p)
+        while date2 >= exceltopython(int(max(bestPred))):
+            p += 1
+            bestPred = result.predict(len(df3["日付"]),len(df3["日付"])+ p)
 
-    # 自動ARMAパラメータ推定関数
-    passengers_diff3 = df3["緯度"] - df3['緯度'].shift()
-    res_selection3 = sm.tsa.SARIMAX(df3["緯度"], order=(1,1,1),seasonal_order=(1,1,0,12))
-    result3 = res_selection3.fit()
-    result3.summary()
-    bestPred3 = result3.predict(len(df3["日付"]),len(df3["日付"])+p)
+        # 自動ARMAパラメータ推定関数
+        passengers_diff3 = df3["緯度"] - df3['緯度'].shift()
+        res_selection3 = sm.tsa.SARIMAX(df3["緯度"], order=(1,1,1),seasonal_order=(1,1,0,12))
+        result3 = res_selection3.fit()
+        result3.summary()
+        bestPred3 = result3.predict(len(df3["日付"]),len(df3["日付"])+p)
 
-    # 自動ARMAパラメータ推定関数
-    passengers_diff4 = df3["経度"] - df3['経度'].shift()
-    res_selection4 = sm.tsa.SARIMAX(df3["経度"], order=(1,1,1),seasonal_order=(1,1,0,12))
-    result4 = res_selection4.fit()
-    result4.summary()
-    bestPred4 = result4.predict(len(df3["日付"]),len(df3["日付"])+p)
+        # 自動ARMAパラメータ推定関数
+        passengers_diff4 = df3["経度"] - df3['経度'].shift()
+        res_selection4 = sm.tsa.SARIMAX(df3["経度"], order=(1,1,1),seasonal_order=(1,1,0,12))
+        result4 = res_selection4.fit()
+        result4.summary()
+        bestPred4 = result4.predict(len(df3["日付"]),len(df3["日付"])+p)
 
-    res_selection5 = sm.tsa.SARIMAX(df3["マグニチュード"], order=(1,1,1),seasonal_order=(1,1,0,12))
-    result5 = res_selection5.fit()
-    result5.summary()
-    bestPred5 = result5.predict(len(df3["日付"]),len(df3["日付"])+p)
+        res_selection5 = sm.tsa.SARIMAX(df3["マグニチュード"], order=(1,1,1),seasonal_order=(1,1,0,12))
+        result5 = res_selection5.fit()
+        result5.summary()
+        bestPred5 = result5.predict(len(df3["日付"]),len(df3["日付"])+p)
 
-    def sum_passengers(n):
-        days_count = 0
-        for i in range(n):
-            days_count += (bestPred.iloc[i])
-        return days_count
+        def sum_passengers(n):
+            days_count = 0
+            for i in range(n):
+                days_count += (bestPred.iloc[i])
+            return days_count
 
-    def list_making():
-        f = pd.to_datetime("1899/12/30")
-        #print(f)
-        point = pd.to_timedelta(bestPred.round().astype(int),unit="D",errors="coerce")+f
-        point3 = bestPred3
-        point4 = bestPred4
-        point5 = bestPred5
-        point = sorted(point)
-        return pd.DataFrame({"time":point,"lat":point3,"lon":point4,"M":point5.round(1).astype(float)})
+        def list_making():
+            f = pd.to_datetime("1899/12/30")
+            #print(f)
+            point = pd.to_timedelta(bestPred.round().astype(int),unit="D",errors="coerce")+f
+            point3 = bestPred3
+            point4 = bestPred4
+            point5 = bestPred5
+            point = sorted(point)
+            return pd.DataFrame({"time":point,"lat":point3,"lon":point4,"M":point5.round(1).astype(float)})
 
-    a = list_making()[list_making()["time"]<=date2]
-    a = a[a["time"]>=date]
-    
-    st.title("Earthquake Prediction AI Analysis")
-    st.write("You can view the forecast results for the year.")
-    
-    if max(a["M"].round(0))==9:
-        st.write("A magnitude of 9 is predicted. Please use maximum caution and act accordingly!")
-    elif max(a["M"].round(0))==8:
-        st.write("A magnitude of 8 is predicted. Please use caution and act accordingly.")
-    elif max(a["M"].round(0))==7:
-        st.write("A magnitude of 7 is predicted. Please use caution and act accordingly.")
-    elif max(a["M"].round(0))==6:
-        st.write("A magnitude of 6 is predicted. Please remain calm and act accordingly.")
-    elif max(a["M"].round(0))==5:
-        st.write("A magnitude of 5 is predicted. Please remain calm and act accordingly.")
-    else:
-        st.write("No major earthquakes are currently forecast. Although the area is considered relatively safe, we should exercise caution.")
+        a = list_making()[list_making()["time"]<=date2]
+        a = a[a["time"]>=date]
+        
+        st.title("Earthquake Prediction AI Analysis")
+        st.write("You can view the forecast results for the year.")
+        
+        if max(a["M"].round(0))==9:
+            st.write("A magnitude of 9 is predicted. Please use maximum caution and act accordingly!")
+        elif max(a["M"].round(0))==8:
+            st.write("A magnitude of 8 is predicted. Please use caution and act accordingly.")
+        elif max(a["M"].round(0))==7:
+            st.write("A magnitude of 7 is predicted. Please use caution and act accordingly.")
+        elif max(a["M"].round(0))==6:
+            st.write("A magnitude of 6 is predicted. Please remain calm and act accordingly.")
+        elif max(a["M"].round(0))==5:
+            st.write("A magnitude of 5 is predicted. Please remain calm and act accordingly.")
+        else:
+            st.write("No major earthquakes are currently forecast. Although the area is considered relatively safe, we should exercise caution.")
 
-    import plotly.express as px
-    fig = px.density_mapbox(a, lat='lat', lon='lon', z='M', radius=20,
-                            center=dict(lat=a["lat"].mean(), lon=a["lon"].mean()), zoom=5,
-                            mapbox_style="stamen-terrain")
-    st.plotly_chart(fig)
-    st.dataframe(a)
-    
-import snscrape.modules.twitter as sntwitter
-import itertools
-import requests  # HTTPリクエスト
-from bs4 import BeautifulSoup  # HTML解析
+        import plotly.express as px
+        fig = px.density_mapbox(a, lat='lat', lon='lon', z='M', radius=20,
+                                center=dict(lat=a["lat"].mean(), lon=a["lon"].mean()), zoom=5,
+                                mapbox_style="stamen-terrain")
+        st.plotly_chart(fig)
+        st.dataframe(a)
+        
+    import snscrape.modules.twitter as sntwitter
+    import itertools
+    import requests  # HTTPリクエスト
+    from bs4 import BeautifulSoup  # HTML解析
 
-@st.cache
-def convert_df(df):
-    # IMPORTANT: Cache the conversion to prevent computation on every rerun
-    return df.to_csv().encode("utf-8-sig")
+    @st.cache
+    def convert_df(df):
+        # IMPORTANT: Cache the conversion to prevent computation on every rerun
+        return df.to_csv().encode("utf-8-sig")
 
-if col:
-    # 震源リストに掲載されている年月日をshingen_listへ格納
-    st.write("Twitter analysis")
-    dt_today = dt.date.today()
-    dt_minus = dt.timedelta(days = 10)
-    dt_week = dt_today - dt_minus
+    if col:
+        # 震源リストに掲載されている年月日をshingen_listへ格納
+        st.write("Twitter analysis")
+        dt_today = dt.date.today()
+        dt_minus = dt.timedelta(days = 10)
+        dt_week = dt_today - dt_minus
 
-    dt_3 = dt_today - dt.timedelta(days = 3)
-    dt_2 = dt_today - dt.timedelta(days = 2)
-    dt_1 = dt_today - dt.timedelta(days = 1)
-    dt_4 = dt_today - dt.timedelta(days = 4)
-    dt_5 = dt_today - dt.timedelta(days = 5)
-    dt_6 = dt_today - dt.timedelta(days = 6)
-    dt_7 = dt_today - dt.timedelta(days = 7)
+        dt_3 = dt_today - dt.timedelta(days = 3)
+        dt_2 = dt_today - dt.timedelta(days = 2)
+        dt_1 = dt_today - dt.timedelta(days = 1)
+        dt_4 = dt_today - dt.timedelta(days = 4)
+        dt_5 = dt_today - dt.timedelta(days = 5)
+        dt_6 = dt_today - dt.timedelta(days = 6)
+        dt_7 = dt_today - dt.timedelta(days = 7)
 
-    #twitterでスクレイピングを行い特定キーワードの情報を取得
-    scraped_tweets = sntwitter.TwitterSearchScraper(search_keyword+" earthquake").get_items()
+        #twitterでスクレイピングを行い特定キーワードの情報を取得
+        scraped_tweets = sntwitter.TwitterSearchScraper(search_keyword+" earthquake").get_items()
 
-    #最初の10ツイートだけを取得し格納
-    sliced_scraped_tweets = itertools.islice(scraped_tweets, 10)
+        #最初の10ツイートだけを取得し格納
+        sliced_scraped_tweets = itertools.islice(scraped_tweets, 10)
 
-    #データフレームに変換する
-    df2 = pd.DataFrame(sliced_scraped_tweets)
+        #データフレームに変換する
+        df2 = pd.DataFrame(sliced_scraped_tweets)
 
-    st.dataframe(df2) 
+        st.dataframe(df2) 
 
-    csv2 = convert_df(df2)
+        csv2 = convert_df(df2)
 
-    st.download_button(
-        label="Download data as CSV",
-        data=csv2,
-        file_name='Twitter_analysis'+str(search_keyword)+'.csv',
-        mime='text/csv',
-    )
+        st.download_button(
+            label="Download data as CSV",
+            data=csv2,
+            file_name='Twitter_analysis'+str(search_keyword)+'.csv',
+            mime='text/csv',
+        )
